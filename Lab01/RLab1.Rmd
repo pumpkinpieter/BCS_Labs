@@ -7,7 +7,67 @@ output: rmdformats::html_docco
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-**Use only tools covered on Tuesday's lecture (including those discussed on the lecture recording)**. 
+**Complete the following lab as a group. This document should exist in your GitHub repo while you're working on it. Your code should be heavily commented so someone reading your code can follow along easily. See the first code snippet below for an example of commented code.**
+
+**Here's the catch: For any given problem, the person writing the code should not be the person commenting that code, and every person must both code AND comment at least one problem in this lab. This will involve lots of pushing and pulling through Git, and you may have to resolve conflicts if you're not careful! Refer to last Thursday's class notes for details on conflict resolution.**
+
+**Use only tools covered on Tuesday's lecture (including those discussed on the lecture recording)**.
+
+# Playing With Cherry Blossom Race Data
+
+1) First load the data, which is saved as a .RData file called `CBdata.1_10.RData`. This is the first ten years' worth of Cherry Blossom Race data. Pull out the data associated with 1976 and store it as a data frame called `dat.76`. Remove the column `Pis/Tis`. 
+
+
+```{r import_data}
+load("CBdata.1_10.RData") #Loading the cherry blossom data. (this is an example of a properly commented line of code)
+
+#Now write code to remove the specified column
+
+```
+
+
+2) The function `summary()` is useful for learning basic facts about vectors, data frames, and many other R objects. Use this function to find the mean and median recorded ages in 1976. 
+
+```{r summary}
+
+```
+
+
+3) You might have noticed that a number of age values are missing (i.e. `NA`). Your next goal is to write a loop that removes observations that don't have age data.  
+Hints:  
+- The `is.na()` function may be useful. Use the `?is.na` command to pull up documentation on this function. It might be helpful to play around with a toy example like `c(1,2,NA,3)` to make sure you understand this new function!  
+- Depending on how you write your code, you may need to negate a logical vector using `!`. Ex: `!c(TRUE, TRUE, FALSE)` is identical to `c(FALSE, FALSE, TRUE)`.
+
+```{r filter_missing_age_loop}
+
+
+```
+
+ 4) Now use vectorization and the `is.na()` function to accomplish the same thing as the loop above.  
+How to check your work: If your loop produced a data frame called "dat.76.clean" and the vectorization approach produced a data frame called `dat.76.clean2`, the `identical(dat.76.clean,dat.76.clean2)` should return `TRUE`.
+
+```{r filter_missing_age_vectorization}
+
+
+```
+
+5) Filtering out missing age data could be useful when dealing with other years. With this in mind, turn your filter loop or vectorization approach into a function. You should be able to use the function like this: `dat.76.clean <- filter.func(dat.76)`.  
+When you have a function written, run it on the 1976 data and use identical() to verify that your function and the first loop you wrote are doing the same thing.
+
+```{r filter_func}
+
+```
+
+6) Next, write a loop that combines all of the data from `CBdata.1_10` into one cleaned data frame. Make sure your final data frame has neither the `Pis/Tis` column nor `NA` Age values.  
+Use the `identical()` function to verify that the 1976 data in this larger cleaned data set is the same as the cleaned version of `dat.76`. 
+
+```{r combine_dat}
+
+```
+
+7) Now that you have the combined data set for these 10 years, let's do some basic exploration:  
+a) How does the average of the recorded ages in 1976 compare to that same average over the entire `CBdata.1_10` data set?  
+b) Recall that the `CBdata.1_10` contains the first ten year's worth of cherry blossom race data. How does the average participant age over the first five years compare to the average age over years 6-10?
 
 # Playing with the indoor positioning system data
 
