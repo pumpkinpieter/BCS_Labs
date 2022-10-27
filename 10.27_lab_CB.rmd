@@ -1,0 +1,93 @@
+---
+title: "10.27_lab_CB"
+author: "Jacob Schultz"
+date: "2022-10-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Manipulating Cherry Blossom Race Data
+
+First load the data, which is saved as a .RData file called "CBdata.1_10.RData". This is the first ten years' worth of Cherry Blossom Race data. Pull out the data associated with 1976 and store it as a data frame called "dat.76". Remove the column "Pis/Tis". 
+
+
+```{r import_data}
+#load the cherry blossom data
+load("CBdata.1_10.RData")
+# str(CBdata.1_10) #we see 1976 is the 4th list element
+dat.76 <- CBdata.1_10[[4]]
+```
+
+
+The function summary() is useful for learning basic facts about vectors, data frames, and many other R objects. Use this function to find the mean and median recorded ages in 1976. 
+
+```{r mean1}
+summary(dat.76)
+
+```
+
+
+You might have noticed that a number of age values are missing (i.e. "NA"). Your next goal is to write a loop that removes observations that don't have age data. 
+
+Hints: 
+1) The `is.na()` function may be useful. Use the `?is.na` command to pull up documentation on this function. It might be helpful to play around with a toy example like c(1,2,NA,3) to make sure you understand this new function!
+2) Depending on how you write your code, you may need to negate a logical vector using "!". Ex: "!c(TRUE, TRUE, FALSE)" is identical to "c(FALSE, FALSE, TRUE)"
+
+```{r filter_missing_age_loop}
+bad.rows <- c()
+for( i in 1:nrow(dat.76)){
+  if(is.na(dat.76[i,"Age"])==T){
+    bad.rows <- c(bad.rows,i)
+  }
+}
+length(bad.rows)
+dat.76.clean <- dat.76[-bad.rows,]
+summary(dat.76.clean$Age)
+
+```
+
+Now use vectorization and the is.na() function to accomplish the same thing as the loop above. 
+
+How to check your work: If your loop produced a data frame called "dat.76.clean" and the vectorization approach produced a data frame called "dat.76.clean2", the "identical(dat.76.clean,dat.76.clean2)" should return "TRUE".
+
+```{r filter_missing_age_vectorization}
+good.rows <- !is.na(dat.76$Age)
+dat.76.clean2 <- dat.76[good.rows,]
+identical(dat.76.clean,dat.76.clean2)
+
+```
+
+Filtering out missing age data could be useful when dealing with other years. With this in mind, turn your filter loop or vectorization approach into a function. You should be able to use the function like this: dat.76.clean <- filter.func(dat.76). 
+
+When you have a function written, run it on the 1976 data and use identical() to verify that your function and the first loop you wrote are doing the same thing.
+```{r filter_func}
+
+```
+
+Next, write a loop that combines all of the data from CBdata.1_10 into one cleaned data frame. Make sure your final data frame has neither the "Pis/Tis" column nor NA Age values.
+
+Use the identical() function to verify that the 1976 data in this larger cleaned data set is the same as the cleaned version of dat.76. 
+
+```{r combine_dat}
+
+```
+
+Now that you have the combined data set for these 10 years, let's do some basic exploration:
+
+1) How does the average of the recorded ages in 1976 compare to that same average over the entire CBdata.1_10 data set?
+
+2) Recall that the CBdata.1_10 contains the first ten year's worth of cherry blossom race data. How does the average participant age over the first five years compare to the average age over years 6-10?
+
+## NOTES
+
+Need to add language explaining that this must be done through git
+
+Not hitting the following topics
+1) vectorize a function they wrote 
+2) not using apply or lapply
+
+
+
