@@ -1,18 +1,17 @@
 ---
-title: "R Coding Lab (part1)"
-format:
-  html:
-    theme: default
+title: "R Coding Lab Part 1"
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+**Use only tools covered on Tuesday's lecture (including those discussed on the lecture recording)**. 
 
 # Playing with the indoor positioning system data
 
-With the portion of the indoor positioning system data set loaded below, complete the following exercises. **Use only tools covered on Tuesday's lecture (including those discussed on the lecture recording)**. 
+The `IPS_sampledata` data set contains a fraction of the indoor positioning system data for 15 randomly sampled locations.This data set is loaded into memory using the chunk of R code below, complete the following exercises. 
 
 ```{r eval=T, echo=T}
 # loads data set IPS_sampledata
@@ -63,4 +62,3 @@ load("IPS_portion.RData")
 5. Create the function `signal_summary` that takes as inputs a location (`posX`, `posY`, `posZ`), an orientation (`rec_orient`) and an access point id (`mac`).  The function must identify and subset the rows in `IPS_sampledata` corresponding to this unique combination, then it must calculate and return the mean and standard deviation for the corresponding signal strengths.  
 
 6.  Create a list where each entry corresponds to a named list including unique combination of a location, an orientation, and an access point.  Use this list in combination with `lapply` and `signal_summary` to generate a summary of signals for each unique combination.
-
