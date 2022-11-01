@@ -1,10 +1,11 @@
 ---
-title: "R Coding Lab Part 1"
+title: 'R Coding Lab Part 1'
 output: rmdformats::html_docco
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
 ```
 
 **Complete the following lab as a group. This document should exist in your GitHub repo while you're working on it. Your code should be heavily commented so someone reading your code can follow along easily. See the first code snippet below for an example of commented code.**
@@ -19,9 +20,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r import_data}
-load("CBdata.1_10.RData") #Loading the cherry blossom data. (this is an example of a properly commented line of code)
+load('CBdata.1_10.RData') #Loading the cherry blossom data. (this is an example of a properly commented line of code)
 
 #Now write code to remove the specified column
+dat.76 = CBdata.1_10[[4]]
+dat.76 = subset(dat.76, select = -`PiS/TiS`)
 
 ```
 
@@ -29,7 +32,9 @@ load("CBdata.1_10.RData") #Loading the cherry blossom data. (this is an example 
 2) The function `summary()` is useful for learning basic facts about vectors, data frames, and many other R objects. Use this function to find the mean and median recorded ages in 1976. 
 
 ```{r summary}
+summary(dat.76)
 
+  
 ```
 
 
@@ -44,9 +49,14 @@ Hints:
 ```
 
  4) Now use vectorization and the `is.na()` function to accomplish the same thing as the loop above.  
-How to check your work: If your loop produced a data frame called "dat.76.clean" and the vectorization approach produced a data frame called `dat.76.clean2`, the `identical(dat.76.clean,dat.76.clean2)` should return `TRUE`.
+How to check your work: If your loop produced a data frame called 'dat.76.clean' and the vectorization approach produced a data frame called `dat.76.clean2`, the `identical(dat.76.clean,dat.76.clean2)` should return `TRUE`.
 
 ```{r filter_missing_age_vectorization}
+
+dat.76.clean = dat.76[!is.na(dat.76$Age),]
+
+print(dat.76)
+
 
 
 ```
@@ -56,6 +66,13 @@ When you have a function written, run it on the 1976 data and use identical() to
 
 ```{r filter_func}
 
+filter_age = function(df) {
+  df = df[!is.na(df$Age),]
+}
+
+dat.76.cleaned = filter_age(dat.76)
+identical(dat.76.clean, dat.76.cleaned)
+
 ```
 
 6) Next, write a loop that combines all of the data from `CBdata.1_10` into one cleaned data frame. Make sure your final data frame has neither the `Pis/Tis` column nor `NA` Age values.  
@@ -63,11 +80,40 @@ Use the `identical()` function to verify that the 1976 data in this larger clean
 
 ```{r combine_dat}
 
+CBdata = CBdata.1_10
+CBdata.combined = data.frame()
+
+for(i in CBdata) {
+  i = subset(i, select = -`PiS/TiS`)
+  i = filter_age(i)
+  CBdata.combined = rbind(CBdata.combined, i)
+}
+
+
+#Everything is equal except the row names
+all.equal(dat.76.clean, test)
+identical(dat.76.clean, test)
+```
+```{r}
+
+#summary(CBdata.combined)
+#summary(dat.76.clean)
+
+summary(CBdata.combined[CBdata.combined$Year %in% 1973:1978,])
+summary(CBdata.combined[CBdata.combined$Year %in% 1978:1982,])
+
+
 ```
 
 7) Now that you have the combined data set for these 10 years, let's do some basic exploration:  
 a) How does the average of the recorded ages in 1976 compare to that same average over the entire `CBdata.1_10` data set?  
+
+The average age for a runner in 1976 is 32.09, while the overall average is 33.26 years.
+
+
 b) Recall that the `CBdata.1_10` contains the first ten year's worth of cherry blossom race data. How does the average participant age over the first five years compare to the average age over years 6-10?
+
+The average age for the first five years is 31.46 while the average from years 6 - 10 is 33.69
 
 # Playing with the indoor positioning system data
 
@@ -75,7 +121,9 @@ The `IPS_sampledata` data set contains a fraction of the indoor positioning syst
 
 ```{r eval=T, echo=T}
 # loads data set IPS_sampledata
-load("IPS_portion.RData")
+load('IPS_portion.RData')
+
+
 ```
 
 ### Variable dictionary
@@ -99,26 +147,106 @@ load("IPS_portion.RData")
 ### Let's clean up the data a bit
 
 1. First apply the `summary` function to the `IPS_data` to get a sense of what is available in that data frame. 
+```{r}
+IPS = IPS_sampledata 
+summary(IPS)
+
+```
 
 2. Identify variables that need any `class` conversion. Attempting to avoid code-replication as much as possible, convert these variables into the correct class type.
 
+```{r}
+to_numeric = c('time','posX','posY','posZ','orientation','signal')
+
+for(col in colnames(IPS)) {
+  if(col %in% to_numeric) {
+    IPS[,col] = as.numeric(IPS[,col])
+  }
+}
+
+summary(IPS)
+```
+
 3. Because we only want data relative to access points, remove observations that correspond to any other type of device.
+
+```{r}
+access_pts = c("0:0f:a3:39:e1:c0", 
+               "00:14:bf:b1:97:8a",
+               "00:14:bf:3b:c7:c6",
+               "00:14:bf:b1:97:90",
+               "00:14:bf:b1:97:8d",
+               "00:14:bf:b1:97:81")
+
+
+
+IPS.clean = IPS[IPS$mac %in% access_pts,]
+head(IPS.clean)
+
+#00:0f:a3:39:e1:c0  7.5  6.3
+#00:14:bf:b1:97:8a  2.5 -0.8
+#00:14:bf:3b:c7:c6 12.8 -2.8
+#00:14:bf:b1:97:90  1.0 14.0
+#00:14:bf:b1:97:8d 33.5  9.3
+#00:14:bf:b1:97:81 33.5  2.8
+
+```
 
 4. Assess if there are any variables that provide redundant or no information. If so, remove them from the data frame.
 
+```{r}
+
+IPS.clean = subset(IPS.clean, select = -`posZ`)
+
+```
+
 5. Note that the `time` variable is in milliseconds.  Transform it into seconds and then convert its class into a time format using the function `as.POSIXct`.
+
+```{r}
+
+IPS.clean$time = IPS.clean$time/1000
+IPS.clean$time = as.POSIXct(IPS.clean$time, tz = "UTC", origin = "01-01-1970")
+
+```
 
 
 ### Examining the data more closely
 
 1. Create the function `tally_mac` whose only input is the MAC address of an access point, and returns the number of observations found in the data set for it.
 
+```{r}
+
+
+
+```
+
 2. Use the function `unique` to identify the unique levels for `mac` found in the data set. 
+
+```{r}
+
+unique(IPS.clean$mac)
+
+```
 
 3. Using an approach learned in class together with `tally_mac`, tally the  number of observations for all access points in the data. While the researchers did their best to clean their data, some noise was introduced by access points on other floors.  Based on the number of counts, identify and remove likely suspects for access points read by mistake.
 
+```{r}
+
+```
+
 4.  The orientation of the hand-held device considered was supposed to be exactly set to the 8 angles from 0-315 in increments of 45 degrees (360 is equivalent to 0). However, in practice the measured orientations were close to the 8 expected but had some error, so we'll need to group them.  Develop and apply a function to recode the orientation values as one of 0, 45, 90, 135, 180, 225, 270, 315. Call the recoded orientation variable `rec_orient`.
+
+```{r}
+
+```
 
 5. Create the function `signal_summary` that takes as inputs a location (`posX`, `posY`, `posZ`), an orientation (`rec_orient`) and an access point id (`mac`).  The function must identify and subset the rows in `IPS_sampledata` corresponding to this unique combination, then it must calculate and return the mean and standard deviation for the corresponding signal strengths. 
 
+```{r}
+
+```
+
 6.  Create a list where each entry corresponds to a named list including unique combination of a location, an orientation, and an access point.  Use this list in combination with `lapply` and `signal_summary` to generate a summary of signals for each unique combination. `Hint`: you may want to create a new variable with a unique identifier that combines location, `rec_orient` and `mac` to make your life simpler.  One way to go about this is using the `paste` function (see `?paste` for help on its use) with these variables in a row-by-row fashion.
+
+```{r}
+
+```
