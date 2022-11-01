@@ -170,24 +170,9 @@ summary(IPS)
 3. Because we only want data relative to access points, remove observations that correspond to any other type of device.
 
 ```{r}
-access_pts = c("0:0f:a3:39:e1:c0", 
-               "00:14:bf:b1:97:8a",
-               "00:14:bf:3b:c7:c6",
-               "00:14:bf:b1:97:90",
-               "00:14:bf:b1:97:8d",
-               "00:14:bf:b1:97:81")
 
-
-
-IPS.clean = IPS[IPS$mac %in% access_pts,]
+IPS.clean = IPS[IPS$type == 3,]
 head(IPS.clean)
-
-#00:0f:a3:39:e1:c0  7.5  6.3
-#00:14:bf:b1:97:8a  2.5 -0.8
-#00:14:bf:3b:c7:c6 12.8 -2.8
-#00:14:bf:b1:97:90  1.0 14.0
-#00:14:bf:b1:97:8d 33.5  9.3
-#00:14:bf:b1:97:81 33.5  2.8
 
 ```
 
@@ -196,6 +181,8 @@ head(IPS.clean)
 ```{r}
 
 IPS.clean = subset(IPS.clean, select = -`posZ`)
+IPS.clean = subset(IPS.clean, select = -`channel`)
+IPS.clean = subset(IPS.clean, select = -`type`)
 
 ```
 
@@ -204,7 +191,7 @@ IPS.clean = subset(IPS.clean, select = -`posZ`)
 ```{r}
 
 IPS.clean$time = IPS.clean$time/1000
-IPS.clean$time = as.POSIXct(IPS.clean$time, tz = "UTC", origin = "01-01-1970")
+IPS.clean$time = as.POSIXct(IPS.clean$time, origin = "1970-01-01", tz = "UTC")
 
 ```
 
@@ -215,7 +202,13 @@ IPS.clean$time = as.POSIXct(IPS.clean$time, tz = "UTC", origin = "01-01-1970")
 
 ```{r}
 
+tally_max = function(df, mac_address) {
+  return(nrow(df[df$mac == mac_address,]))
+}
 
+test_mac = "00:14:bf:b1:97:8a"
+#test_mac_2 = "00:14:bf:b1:97:81"
+print(tally_max(IPS.clean, test_mac))
 
 ```
 
@@ -231,11 +224,30 @@ unique(IPS.clean$mac)
 
 ```{r}
 
+a_pts = unique((IPS.clean$mac))
+
+for(address in unique(IPS.clean$mac)) {
+  if(tally_max(IPS.clean, address) < 10000) {
+    a_pts = a_pts[a_pts != address]
+  }
+}
+
+print(a_pts)
+
 ```
 
 4.  The orientation of the hand-held device considered was supposed to be exactly set to the 8 angles from 0-315 in increments of 45 degrees (360 is equivalent to 0). However, in practice the measured orientations were close to the 8 expected but had some error, so we'll need to group them.  Develop and apply a function to recode the orientation values as one of 0, 45, 90, 135, 180, 225, 270, 315. Call the recoded orientation variable `rec_orient`.
 
 ```{r}
+
+reorient = function(df) {
+  rec_orient = floor(df$orientation)
+  return(rec_orient)
+}
+
+rec_orient = reorient(IPS.clean) 
+IPS.clean = cbind(IPS.clean, rec_orient)
+
 
 ```
 
