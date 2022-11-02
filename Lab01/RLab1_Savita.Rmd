@@ -3,7 +3,7 @@ title: "R Coding Lab Part 1"
 output: rmdformats::html_docco
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, warning = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -231,7 +231,7 @@ unique(IPS.clean$type)
 ```{r  remove_var_channel}
 
 #'posz' is always zero. 'type' is always 3. 'Channel' is never used.
-drop_IPS <- c("posZ","channel","type")
+drop_IPS <- c("channel","type")
 IPS.clean= IPS.clean[,!(names(IPS.clean) %in% drop_IPS)]
 
 
@@ -298,13 +298,88 @@ IPS.clean2 = IPS.clean[!(IPS.clean$mac  %in% suspect_access),]
 ```{r rec_orient}
 reorient = function(orient) {
             r_orient = as.integer(round(orient/45)*45)
+            r_orient[r_orient  == 360] = 0
+            print(class(r_orient))
             return(r_orient)
             }
 
-IPS.clean2$orientation = reorient(IPS.clean2$orientation)
-unique(IPS.clean2$orientation)
+IPS.clean2$rec_orient = reorient(IPS.clean2$orientation)
+unique(IPS.clean2$rec_orient)
 ```
 
 5. Create the function `signal_summary` that takes as inputs a location (`posX`, `posY`, `posZ`), an orientation (`rec_orient`) and an access point id (`mac`).  The function must identify and subset the rows in `IPS_sampledata` corresponding to this unique combination, then it must calculate and return the mean and standard deviation for the corresponding signal strengths. 
 
+```{r signal_summary}
+
+signal_summary <- function(pos_x,pos_y,pos_z,rorient,df){
+                          
+                        #Subset dataframe
+                         signal_df = df[c(df$posX==pos_x & df$posY==pos_y & df$posZ==pos_z & df$rec_orient == rorient),]
+                         
+                         #mean and standard deviation for the corres. signal strengths
+                         mean_signal = mean(signal_df$signal,na.rm = TRUE)
+                         std_dev_signal = sd(signal_df$signal,na.rm = TRUE)
+                         signal_strngth = c(mean_signal,std_dev_signal)
+                        
+                         return(signal_strngth)
+                        }
+signal_summary(pos_x=2,pos_y=13,pos_z=0,rorient=315,IPS.clean2)
+```
 6.  Create a list where each entry corresponds to a named list including unique combination of a location, an orientation, and an access point.  Use this list in combination with `lapply` and `signal_summary` to generate a summary of signals for each unique combination. `Hint`: you may want to create a new variable with a unique identifier that combines location, `rec_orient` and `mac` to make your life simpler.  One way to go about this is using the `paste` function (see `?paste` for help on its use) with these variables in a row-by-row fashion.
+
+
+```{r}
+
+
+IPS.clean2$mac_orient = paste0(IPS.clean2$mac,as.character(IPS.clean2$rec_orient))
+IPS.clean2$cordinates = paste0(as.character(IPS.clean2$posX),as.character(IPS.clean2$posY),as.character(IPS.clean2$posZ))
+
+mac_orient_list = c(unique(IPS.clean2$cordinates)) 
+coordints =  c(unique(IPS.clean2$mac_orient)) 
+
+mac_orient_signal_df= data.frame(matrix(vector(), 200, 4,
+                dimnames=list(c(), c("mac_orient","cordinates","avg_sig","sd_signal"))),
+                stringsAsFactors=F)
+
+for(i in 1:length(mac_orient_list)){
+
+for(j in 1:length(coordints)){   
+    subset_mac_orient = IPS.clean2[IPS.clean2$mac_orient==mac_orient_list[i] & IPS.clean2$cordinates==coordints[j],]  
+
+m= lapply(IPS.clean2[,c("posX","posY","posZ","rec_orient")],FUN = signal_summary,pos_y=IPS.clean2$posY,pos_z=IPS.clean2$posZ ,rorient=IPS.clean2$rec_orient,df=subset_mac_orient)
+
+c = as.character(m[[1]])
+mac_orient_signal_df$mac_orient_list[i] = mac_orient_list[i]
+mac_orient_signal_df$avg_sig[i] = as.numeric(base::strsplit(c," ")[[1]][1])
+mac_orient_signal_df$sd_sig[i] = as.numeric(base::strsplit(c," ")[[2]][1])
+print(c)
+}
+}
+mac_orient_signal_df = na.omit(mac_orient_signal_df)
+print(mac_orient_signal_df)
+```
+
+#Alternate way 
+```{r}
+
+
+IPS.clean2$mac_orient = paste0(IPS.clean2$mac,as.character(IPS.clean2$rec_orient))
+
+mac_orient_list = c(unique(IPS.clean2$mac_orient)) 
+mac_orient_signal_df= as.data.frame(mac_orient_list)
+
+for(i in 1:length(mac_orient_list)){
+  
+subset_mac_orient = IPS.clean2[IPS.clean2$mac_orient==mac_orient_list[1],]  
+
+m= lapply(IPS.clean2[,c("posX","posY","posZ","rec_orient")],FUN = signal_summary,pos_y=IPS.clean2$posY,pos_z=IPS.clean2$posZ ,rorient=IPS.clean2$rec_orient,df=subset_mac_orient)
+
+c = as.character(m[[1]])
+mac_orient_signal_df$mac_orient_list[i] = mac_orient_list[i]
+mac_orient_signal_df$avg_sig[i] = as.numeric(base::strsplit(c," ")[[1]][1])
+mac_orient_signal_df$sd_sig[i] = as.numeric(base::strsplit(c," ")[[2]][1])
+}
+
+mac_orient_signal_df = na.omit(mac_orient_signal_df)
+print(mac_orient_signal_df)
+```
