@@ -1,11 +1,10 @@
 ---
-title: 'R Coding Lab Part 1'
+title: "R Coding Lab Part 1"
 output: rmdformats::html_docco
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
 ```
 
 **Complete the following lab as a group. This document should exist in your GitHub repo while you're working on it. Your code should be heavily commented so someone reading your code can follow along easily. See the first code snippet below for an example of commented code.**
@@ -20,11 +19,23 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r import_data}
-load('CBdata.1_10.RData') #Loading the cherry blossom data. (this is an example of a properly commented line of code)
+#Loading the cherry blossom data. (this is an example of a properly commented line of code)
+load("CBdata.1_10.RData") 
+
+#Pull out the data associated with 1976 and store it as a data frame called `dat.76`
+for(i in 1:length(CBdata.1_10)){
+if(unique(CBdata.1_10[[i]]["Year"])==1976){
+   index = i
+}
+  
+}
+print(index)
+
+dat.76 = CBdata.1_10[[index]]
 
 #Now write code to remove the specified column
-dat.76 = CBdata.1_10[[4]]
-dat.76 = subset(dat.76, select = -`PiS/TiS`)
+drop <- c("PiS/TiS")
+dat.76= dat.76[,!(names(dat.76) %in% drop)]
 
 ```
 
@@ -32,9 +43,12 @@ dat.76 = subset(dat.76, select = -`PiS/TiS`)
 2) The function `summary()` is useful for learning basic facts about vectors, data frames, and many other R objects. Use this function to find the mean and median recorded ages in 1976. 
 
 ```{r summary}
-summary(dat.76)
+print("Summary of recorded ages in 1976:")
+summary(dat.76$Age)
 
-  
+print(paste0("Mean recorded ages in 1976 = ",summary(dat.76$Age)["Mean"]))
+print(paste0("Median recorded ages in 1976 = ",summary(dat.76$Age)["Median"]))
+
 ```
 
 
@@ -44,21 +58,27 @@ Hints:
 - Depending on how you write your code, you may need to negate a logical vector using `!`. Ex: `!c(TRUE, TRUE, FALSE)` is identical to `c(FALSE, FALSE, TRUE)`.
 
 ```{r filter_missing_age_loop}
+drop_rows = c()
+for(i in 1:nrow(dat.76)){
+  if(is.na(dat.76$Age[i])){
+    drop_rows= append(drop_rows,i)
+  }
+}
+print(length(drop_rows))
 
+dat.76.clean <- dat.76[-drop_rows,]
 
 ```
 
  4) Now use vectorization and the `is.na()` function to accomplish the same thing as the loop above.  
-How to check your work: If your loop produced a data frame called 'dat.76.clean' and the vectorization approach produced a data frame called `dat.76.clean2`, the `identical(dat.76.clean,dat.76.clean2)` should return `TRUE`.
+How to check your work: If your loop produced a data frame called "dat.76.clean" and the vectorization approach produced a data frame called `dat.76.clean2`, the `identical(dat.76.clean,dat.76.clean2)` should return `TRUE`.
 
 ```{r filter_missing_age_vectorization}
 
-dat.76.clean = dat.76[!is.na(dat.76$Age),]
+dat.76.clean2 = dat.76[!is.na(dat.76$Age),]
 
-print(dat.76)
-
-
-
+#check
+identical(dat.76.clean,dat.76.clean2)
 ```
 
 5) Filtering out missing age data could be useful when dealing with other years. With this in mind, turn your filter loop or vectorization approach into a function. You should be able to use the function like this: `dat.76.clean <- filter.func(dat.76)`.  
@@ -66,12 +86,41 @@ When you have a function written, run it on the 1976 data and use identical() to
 
 ```{r filter_func}
 
-filter_age = function(df) {
-  df = df[!is.na(df$Age),]
-}
+select.data.yr<- function(yrs){
+                          #Step1 :Pull out the data associated with year = yrs
+                          for(i in 1:length(CBdata.1_10)){
+                              if(unique(CBdata.1_10[[i]]["Year"])[[1]]==yrs){
+                                  index = i
+                                    }
+                                    }
+                                    print(index)
 
-dat.76.cleaned = filter_age(dat.76)
-identical(dat.76.clean, dat.76.cleaned)
+                          data.yr= CBdata.1_10[[index]]
+
+                          return(data.yr)
+                          }
+
+                          
+filter.func<-function(data.year){
+  
+                          #Step2 :Now write code to remove the specified column
+                          drop <- c("PiS/TiS")
+                          data.year= data.year[,!(names(data.year) %in% drop)]
+                          
+                          #remove rows with missing age data
+                          data.clean = data.year[!is.na(data.year$Age),]
+                          
+                          #return clean data set
+                          return(data.clean)
+                          }
+#Calling function 'select.data.yr' to filter out records for the year 1976 .
+#Calling function 'filter.func' rows with missing age data for the year 1976 
+dat.76.func <- select.data.yr(1976)
+dat.76.func.clean <- filter.func(dat.76.func)
+
+#Check
+identical(dat.76.func.clean,dat.76.clean)
+
 
 ```
 
@@ -79,51 +128,55 @@ identical(dat.76.clean, dat.76.cleaned)
 Use the `identical()` function to verify that the 1976 data in this larger cleaned data set is the same as the cleaned version of `dat.76`. 
 
 ```{r combine_dat}
+#Check if each element of dataframe has unique year
+Check = TRUE
 
-CBdata = CBdata.1_10
-CBdata.combined = data.frame()
-
-for(i in CBdata) {
-  i = subset(i, select = -`PiS/TiS`)
-  i = filter_age(i)
-  CBdata.combined = rbind(CBdata.combined, i)
+#Combines all of the data from `CBdata.1_10`
+data.all = CBdata.1_10[[1]]
+for(i in 2:length(CBdata.1_10)){
+  
+    #Check if each element of dataframe has unique year
+    if(length(unique(CBdata.1_10[[i]]["Year"]))>1){
+      Check = FALSE
+    }
+   
+   #Append the data for 'Year=CBdata.1_10[[i]]$Year'  to data.all
+    data.all=rbind.data.frame(data.all,CBdata.1_10[[i]])
 }
 
+#Check class
+class(data.all)
 
-#Everything is equal except the row names
-all.equal(dat.76.clean, test)
-identical(dat.76.clean, test)
-```
-```{r}
+data.all.clean <- filter.func(data.all)
+#Cleaning the data frame
 
-#summary(CBdata.combined)
-#summary(dat.76.clean)
-
-summary(CBdata.combined[CBdata.combined$Year %in% 1973:1978,])
-summary(CBdata.combined[CBdata.combined$Year %in% 1978:1982,])
-
+data.76.6 = data.all.clean[data.all.clean["Year"]==1976,]
 
 ```
 
 7) Now that you have the combined data set for these 10 years, let's do some basic exploration:  
+
 a) How does the average of the recorded ages in 1976 compare to that same average over the entire `CBdata.1_10` data set?  
-
-The average age for a runner in 1976 is 32.09, while the overall average is 33.26 years.
-
+```{r 7a}
+print(paste0("Mean recorded ages in 1976 = ",summary(dat.76$Age)["Mean"]))
+print(paste0("Mean recorded ages in entire CBdata.1_10 = ",summary(data.all.clean$Age)["Mean"]))
+print("Therefore, average of the recorded ages in 1976 is less than the average of the recorded ages in the entire data")
+```
 
 b) Recall that the `CBdata.1_10` contains the first ten year's worth of cherry blossom race data. How does the average participant age over the first five years compare to the average age over years 6-10?
-
-The average age for the first five years is 31.46 while the average from years 6 - 10 is 33.69
-
+```{r 7b}
+print("Years in cherry blossom data:")
+print(unique(data.all.clean$Year))
+print(paste0("Average participant age over the first five years  = ",mean(data.all.clean[data.all.clean$Year<=1976,"Age"])))
+print(paste0("Average participant age over the last five years  = ",mean(data.all.clean[data.all.clean$Year>1976,"Age"])))
+```
 # Playing with the indoor positioning system data
 
 The `IPS_sampledata` data set contains a fraction of the indoor positioning system data for 15 randomly sampled locations.This data set is loaded into memory using the chunk of R code below, complete the following exercises. 
 
 ```{r eval=T, echo=T}
 # loads data set IPS_sampledata
-load('IPS_portion.RData')
-
-
+load("IPS_portion.RData")
 ```
 
 ### Variable dictionary
@@ -147,118 +200,111 @@ load('IPS_portion.RData')
 ### Let's clean up the data a bit
 
 1. First apply the `summary` function to the `IPS_data` to get a sense of what is available in that data frame. 
-```{r}
-IPS = IPS_sampledata 
-summary(IPS)
 
+```{r}
+summary(IPS_sampledata)
 ```
 
 2. Identify variables that need any `class` conversion. Attempting to avoid code-replication as much as possible, convert these variables into the correct class type.
 
-```{r}
-to_numeric = c('time','posX','posY','posZ','orientation','signal')
+##convert signal, posx, posy and posz
 
-for(col in colnames(IPS)) {
-  if(col %in% to_numeric) {
-    IPS[,col] = as.numeric(IPS[,col])
-  }
-}
+```{r class_conversion}
 
-summary(IPS)
+IPS_sampledata[,c("posX","posY","posZ","signal","orientation","time")]=lapply(IPS_sampledata[,c("posX","posY","posZ","signal","orientation","time")],as.numeric)
+
+str(IPS_sampledata)
 ```
 
 3. Because we only want data relative to access points, remove observations that correspond to any other type of device.
 
-```{r}
+```{r  remove_type1}
 
-IPS.clean = IPS[IPS$type == 3,]
-head(IPS.clean)
+IPS.clean   = IPS_sampledata[IPS_sampledata$type==3,]
+
+#Check
+unique(IPS.clean$type)
 
 ```
 
 4. Assess if there are any variables that provide redundant or no information. If so, remove them from the data frame.
+```{r  remove_var_channel}
 
-```{r}
+#'posz' is always zero. 'type' is always 3. 'Channel' is never used.
+drop_IPS <- c("posZ","channel","type")
+IPS.clean= IPS.clean[,!(names(IPS.clean) %in% drop_IPS)]
 
-IPS.clean = subset(IPS.clean, select = -`posZ`)
-IPS.clean = subset(IPS.clean, select = -`channel`)
-IPS.clean = subset(IPS.clean, select = -`type`)
 
 ```
-
 5. Note that the `time` variable is in milliseconds.  Transform it into seconds and then convert its class into a time format using the function `as.POSIXct`.
+```{r transform_time}
 
-```{r}
-
+#Convert time to seconds from milliseconds
 IPS.clean$time = IPS.clean$time/1000
 IPS.clean$time = as.POSIXct(IPS.clean$time, origin = "1970-01-01", tz = "UTC")
-
 ```
-
 
 ### Examining the data more closely
 
 1. Create the function `tally_mac` whose only input is the MAC address of an access point, and returns the number of observations found in the data set for it.
 
-```{r}
-
-tally_max = function(df, mac_address) {
-  return(nrow(df[df$mac == mac_address,]))
+```{r  tally_mac}
+tally_mac = function(mac_address) {
+  return(nrow(IPS.clean[IPS.clean$mac == mac_address,]))
 }
 
+#Test
 test_mac = "00:14:bf:b1:97:8a"
-#test_mac_2 = "00:14:bf:b1:97:81"
-print(tally_max(IPS.clean, test_mac))
+print(tally_mac(test_mac))
 
 ```
 
 2. Use the function `unique` to identify the unique levels for `mac` found in the data set. 
 
-```{r}
+```{r  unique_mac}
 
 unique(IPS.clean$mac)
 
 ```
-
 3. Using an approach learned in class together with `tally_mac`, tally the  number of observations for all access points in the data. While the researchers did their best to clean their data, some noise was introduced by access points on other floors.  Based on the number of counts, identify and remove likely suspects for access points read by mistake.
 
-```{r}
+```{r remove_suspect_access_points}
 
+# identify likely suspects for access points
 a_pts = unique((IPS.clean$mac))
 
-for(address in unique(IPS.clean$mac)) {
-  if(tally_max(IPS.clean, address) < 10000) {
-    a_pts = a_pts[a_pts != address]
-  }
+mac_counts = data.frame(matrix(vector(), length(a_pts), 2,
+                dimnames=list(c(), c("mac_address","count"))),
+                stringsAsFactors=F)
+
+for(i in 1:(length(a_pts))){
+  print(a_pts[i])
+  print(tally_mac(a_pts[i]))
+  mac_counts$mac_address[i] = a_pts[i]
+  mac_counts$count[i] = tally_mac(a_pts[i])
 }
 
-print(a_pts)
+print("Most of the access points have count of order of ten thousand. However there are four access points with very low count and seem inconsistent with the remaining data")
 
+print("Zccess points with very low count(<10000) are: ")
+mac_counts[mac_counts$count <10000,]
+suspect_access = as.vector(mac_counts[mac_counts$count <10000,1])
+
+# remove likely suspects for access points
+IPS.clean2 = IPS.clean[!(IPS.clean$mac  %in% suspect_access),]
 ```
-
 4.  The orientation of the hand-held device considered was supposed to be exactly set to the 8 angles from 0-315 in increments of 45 degrees (360 is equivalent to 0). However, in practice the measured orientations were close to the 8 expected but had some error, so we'll need to group them.  Develop and apply a function to recode the orientation values as one of 0, 45, 90, 135, 180, 225, 270, 315. Call the recoded orientation variable `rec_orient`.
 
-```{r}
+```{r rec_orient}
+reorient = function(orient) {
+            r_orient = as.integer(round(orient/45)*45)
+            return(r_orient)
+            }
 
-reorient = function(df) {
-  rec_orient = floor(df$orientation)
-  return(rec_orient)
-}
-
-rec_orient = reorient(IPS.clean) 
-IPS.clean = cbind(IPS.clean, rec_orient)
-
-
+IPS.clean2$orientation = reorient(IPS.clean2$orientation)
+unique(IPS.clean2$orientation)
 ```
 
 5. Create the function `signal_summary` that takes as inputs a location (`posX`, `posY`, `posZ`), an orientation (`rec_orient`) and an access point id (`mac`).  The function must identify and subset the rows in `IPS_sampledata` corresponding to this unique combination, then it must calculate and return the mean and standard deviation for the corresponding signal strengths. 
 
-```{r}
-
-```
-
 6.  Create a list where each entry corresponds to a named list including unique combination of a location, an orientation, and an access point.  Use this list in combination with `lapply` and `signal_summary` to generate a summary of signals for each unique combination. `Hint`: you may want to create a new variable with a unique identifier that combines location, `rec_orient` and `mac` to make your life simpler.  One way to go about this is using the `paste` function (see `?paste` for help on its use) with these variables in a row-by-row fashion.
-
-```{r}
-
-```
