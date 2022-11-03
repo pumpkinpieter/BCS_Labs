@@ -297,13 +297,14 @@ IPS.clean2 = IPS.clean[!(IPS.clean$mac  %in% suspect_access),]
 
 ```{r rec_orient}
 reorient = function(orient) {
-            r_orient = as.integer(round(orient/45)*45)
-            r_orient[r_orient  == 360] = 0
+            r_orient = as.integer(round(orient/45)*45) # Re-code the data by rounding
+            r_orient[r_orient  == 360] = 0 #If r_orient is 360, set to 0
             print(class(r_orient))
             return(r_orient)
             }
-
+#Create a new column in the data with the new orientations
 IPS.clean2$rec_orient = reorient(IPS.clean2$orientation)
+#Check to make sure everything has been rounded
 unique(IPS.clean2$rec_orient)
 ```
 
