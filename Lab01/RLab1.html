@@ -516,10 +516,10 @@ Use the <code>identical()</code> function to verify that the 1976 data in this l
 <ol start="5" style="list-style-type: decimal">
 <li>Create the function <code>signal_summary</code> that takes as inputs a location (<code>posX</code>, <code>posY</code>, <code>posZ</code>), an orientation (<code>rec_orient</code>) and an access point id (<code>mac</code>). The function must identify and subset the rows in <code>IPS_sampledata</code> corresponding to this unique combination, then it must calculate and return the mean and standard deviation for the corresponding signal strengths.</li>
 </ol>
-<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>signal_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(pos_x,pos_y,pos_z,rorient,df){</span>
+<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>signal_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(df,pos_x,pos_y,pos_z,rorient,access){</span>
 <span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>                          </span>
 <span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>                        <span class="co">#Subset dataframe</span></span>
-<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>                         signal_df <span class="ot">=</span> df[<span class="fu">c</span>(df<span class="sc">$</span>posX<span class="sc">==</span>pos_x <span class="sc">&amp;</span> df<span class="sc">$</span>posY<span class="sc">==</span>pos_y <span class="sc">&amp;</span> df<span class="sc">$</span>posZ<span class="sc">==</span>pos_z <span class="sc">&amp;</span> df<span class="sc">$</span>rec_orient <span class="sc">==</span> rorient),]</span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>                         signal_df <span class="ot">=</span> df[<span class="fu">c</span>(df<span class="sc">$</span>posX<span class="sc">==</span>pos_x <span class="sc">&amp;</span> df<span class="sc">$</span>posY<span class="sc">==</span>pos_y <span class="sc">&amp;</span> df<span class="sc">$</span>posZ<span class="sc">==</span>pos_z <span class="sc">&amp;</span> df<span class="sc">$</span>rec_orient <span class="sc">==</span> rorient <span class="sc">&amp;</span> df<span class="sc">$</span>mac <span class="sc">==</span> access),]</span>
 <span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>                         </span>
 <span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a>                         <span class="co">#mean and standard deviation for the corres. signal strengths</span></span>
 <span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a>                         mean_signal <span class="ot">=</span> <span class="fu">mean</span>(signal_df<span class="sc">$</span>signal,<span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
@@ -528,880 +528,1728 @@ Use the <code>identical()</code> function to verify that the 1976 data in this l
 <span id="cb64-10"><a href="#cb64-10" aria-hidden="true" tabindex="-1"></a>                        </span>
 <span id="cb64-11"><a href="#cb64-11" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">return</span>(signal_strngth)</span>
 <span id="cb64-12"><a href="#cb64-12" aria-hidden="true" tabindex="-1"></a>                        }</span>
-<span id="cb64-13"><a href="#cb64-13" aria-hidden="true" tabindex="-1"></a><span class="fu">signal_summary</span>(<span class="at">pos_x=</span><span class="dv">2</span>,<span class="at">pos_y=</span><span class="dv">13</span>,<span class="at">pos_z=</span><span class="dv">0</span>,<span class="at">rorient=</span><span class="dv">315</span>,IPS.clean2)</span></code></pre></div>
-<pre><code>## [1] -61.15994  14.56098</code></pre>
+<span id="cb64-13"><a href="#cb64-13" aria-hidden="true" tabindex="-1"></a><span class="fu">signal_summary</span>(IPS.clean2,<span class="at">pos_x=</span><span class="dv">2</span>,<span class="at">pos_y=</span><span class="dv">13</span>,<span class="at">pos_z=</span><span class="dv">0</span>,<span class="at">rorient=</span><span class="dv">315</span>,<span class="at">access =</span> <span class="st">&quot;00:14:bf:b1:97:8a&quot;</span>)</span></code></pre></div>
+<pre><code>## [1] -42.081633   1.727124</code></pre>
 <ol start="6" style="list-style-type: decimal">
 <li>Create a list where each entry corresponds to a named list including unique combination of a location, an orientation, and an access point. Use this list in combination with <code>lapply</code> and <code>signal_summary</code> to generate a summary of signals for each unique combination. <code>Hint</code>: you may want to create a new variable with a unique identifier that combines location, <code>rec_orient</code> and <code>mac</code> to make your life simpler. One way to go about this is using the <code>paste</code> function (see <code>?paste</code> for help on its use) with these variables in a row-by-row fashion.</li>
 </ol>
-<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>IPS.clean2<span class="sc">$</span>mac_orient <span class="ot">=</span> <span class="fu">paste0</span>(IPS.clean2<span class="sc">$</span>mac,<span class="fu">as.character</span>(IPS.clean2<span class="sc">$</span>rec_orient))</span>
-<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>IPS.clean2<span class="sc">$</span>cordinates <span class="ot">=</span> <span class="fu">paste0</span>(<span class="fu">as.character</span>(IPS.clean2<span class="sc">$</span>posX),<span class="fu">as.character</span>(IPS.clean2<span class="sc">$</span>posY),<span class="fu">as.character</span>(IPS.clean2<span class="sc">$</span>posZ))</span>
-<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>mac_orient_list <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">unique</span>(IPS.clean2<span class="sc">$</span>cordinates)) </span>
-<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>coordints <span class="ot">=</span>  <span class="fu">c</span>(<span class="fu">unique</span>(IPS.clean2<span class="sc">$</span>mac_orient)) </span>
+<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">=</span> <span class="fu">unique</span>(IPS.clean2[,<span class="fu">c</span>(<span class="st">&quot;posX&quot;</span>,<span class="st">&quot;posY&quot;</span>,<span class="st">&quot;posZ&quot;</span>,<span class="st">&quot;rec_orient&quot;</span>,<span class="st">&quot;mac&quot;</span>)])</span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>mac_orient_signal_df <span class="ot">=</span> <span class="fu">data.frame</span>(<span class="fu">matrix</span>(<span class="fu">vector</span>(), <span class="dv">840</span>, <span class="dv">8</span>,</span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">dimnames=</span><span class="fu">list</span>(<span class="fu">c</span>(), <span class="fu">c</span>(<span class="st">&quot;posX&quot;</span>,<span class="st">&quot;posY&quot;</span>,<span class="st">&quot;posZ&quot;</span>,<span class="st">&quot;rec_orient&quot;</span>,<span class="st">&quot;mac&quot;</span>,<span class="st">&quot;unique_comb&quot;</span>,<span class="st">&quot;avg_signal&quot;</span>,<span class="st">&quot;sd_signal&quot;</span>))),</span>
+<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">stringsAsFactors=</span>F)</span>
 <span id="cb66-6"><a href="#cb66-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb66-7"><a href="#cb66-7" aria-hidden="true" tabindex="-1"></a>mac_orient_signal_df<span class="ot">=</span> <span class="fu">data.frame</span>(<span class="fu">matrix</span>(<span class="fu">vector</span>(), <span class="dv">200</span>, <span class="dv">4</span>,</span>
-<span id="cb66-8"><a href="#cb66-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">dimnames=</span><span class="fu">list</span>(<span class="fu">c</span>(), <span class="fu">c</span>(<span class="st">&quot;mac_orient&quot;</span>,<span class="st">&quot;cordinates&quot;</span>,<span class="st">&quot;avg_sig&quot;</span>,<span class="st">&quot;sd_signal&quot;</span>))),</span>
-<span id="cb66-9"><a href="#cb66-9" aria-hidden="true" tabindex="-1"></a>                <span class="at">stringsAsFactors=</span>F)</span>
-<span id="cb66-10"><a href="#cb66-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb66-11"><a href="#cb66-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(mac_orient_list)){</span>
-<span id="cb66-12"><a href="#cb66-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb66-13"><a href="#cb66-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(coordints)){   </span>
-<span id="cb66-14"><a href="#cb66-14" aria-hidden="true" tabindex="-1"></a>    subset_mac_orient <span class="ot">=</span> IPS.clean2[IPS.clean2<span class="sc">$</span>mac_orient<span class="sc">==</span>mac_orient_list[i] <span class="sc">&amp;</span> IPS.clean2<span class="sc">$</span>cordinates<span class="sc">==</span>coordints[j],]  </span>
-<span id="cb66-15"><a href="#cb66-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb66-16"><a href="#cb66-16" aria-hidden="true" tabindex="-1"></a>m<span class="ot">=</span> <span class="fu">lapply</span>(IPS.clean2[,<span class="fu">c</span>(<span class="st">&quot;posX&quot;</span>,<span class="st">&quot;posY&quot;</span>,<span class="st">&quot;posZ&quot;</span>,<span class="st">&quot;rec_orient&quot;</span>)],<span class="at">FUN =</span> signal_summary,<span class="at">pos_y=</span>IPS.clean2<span class="sc">$</span>posY,<span class="at">pos_z=</span>IPS.clean2<span class="sc">$</span>posZ ,<span class="at">rorient=</span>IPS.clean2<span class="sc">$</span>rec_orient,<span class="at">df=</span>subset_mac_orient)</span>
-<span id="cb66-17"><a href="#cb66-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb66-18"><a href="#cb66-18" aria-hidden="true" tabindex="-1"></a>c <span class="ot">=</span> <span class="fu">as.character</span>(m[[<span class="dv">1</span>]])</span>
-<span id="cb66-19"><a href="#cb66-19" aria-hidden="true" tabindex="-1"></a>mac_orient_signal_df<span class="sc">$</span>mac_orient_list[i] <span class="ot">=</span> mac_orient_list[i]</span>
-<span id="cb66-20"><a href="#cb66-20" aria-hidden="true" tabindex="-1"></a>mac_orient_signal_df<span class="sc">$</span>avg_sig[i] <span class="ot">=</span> <span class="fu">as.numeric</span>(base<span class="sc">::</span><span class="fu">strsplit</span>(c,<span class="st">&quot; &quot;</span>)[[<span class="dv">1</span>]][<span class="dv">1</span>])</span>
-<span id="cb66-21"><a href="#cb66-21" aria-hidden="true" tabindex="-1"></a>mac_orient_signal_df<span class="sc">$</span>sd_sig[i] <span class="ot">=</span> <span class="fu">as.numeric</span>(base<span class="sc">::</span><span class="fu">strsplit</span>(c,<span class="st">&quot; &quot;</span>)[[<span class="dv">2</span>]][<span class="dv">1</span>])</span>
-<span id="cb66-22"><a href="#cb66-22" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(c)</span>
-<span id="cb66-23"><a href="#cb66-23" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb66-24"><a href="#cb66-24" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<pre><code>## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA   
-## [1] &quot;NaN&quot; NA</code></pre>
-<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>mac_orient_signal_df <span class="ot">=</span> <span class="fu">na.omit</span>(mac_orient_signal_df)</span>
-<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(mac_orient_signal_df)</span></code></pre></div>
-<pre><code>## [1] mac_orient      cordinates      avg_sig         sd_signal      
-## [5] mac_orient_list sd_sig         
-## &lt;0 rows&gt; (or 0-length row.names)</code></pre>
+<span id="cb66-7"><a href="#cb66-7" aria-hidden="true" tabindex="-1"></a>mac_orient_signal_df[,<span class="fu">c</span>(<span class="st">&quot;posX&quot;</span>,<span class="st">&quot;posY&quot;</span>,<span class="st">&quot;posZ&quot;</span>,<span class="st">&quot;rec_orient&quot;</span>,<span class="st">&quot;mac&quot;</span>)]<span class="ot">&lt;-</span> df[,<span class="fu">c</span>(<span class="st">&quot;posX&quot;</span>,<span class="st">&quot;posY&quot;</span>,<span class="st">&quot;posZ&quot;</span>,<span class="st">&quot;rec_orient&quot;</span>,<span class="st">&quot;mac&quot;</span>)]</span>
+<span id="cb66-8"><a href="#cb66-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-9"><a href="#cb66-9" aria-hidden="true" tabindex="-1"></a>mac_orient_signal_df<span class="sc">$</span>avg_signal <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb66-10"><a href="#cb66-10" aria-hidden="true" tabindex="-1"></a>mac_orient_signal_df<span class="sc">$</span>sd_signal <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb66-11"><a href="#cb66-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-12"><a href="#cb66-12" aria-hidden="true" tabindex="-1"></a>mac_orient_signal_df[<span class="st">&quot;unique_comb&quot;</span>] <span class="ot">=</span>  <span class="fu">paste0</span>(<span class="fu">as.character</span>(mac_orient_signal_df<span class="sc">$</span>posX),<span class="fu">as.character</span>(mac_orient_signal_df<span class="sc">$</span>posY),<span class="fu">as.character</span>(mac_orient_signal_df<span class="sc">$</span>posZ),<span class="fu">as.character</span>(mac_orient_signal_df<span class="sc">$</span>rec_orient),mac_orient_signal_df<span class="sc">$</span>mac)</span>
+<span id="cb66-13"><a href="#cb66-13" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb66-14"><a href="#cb66-14" aria-hidden="true" tabindex="-1"></a>m <span class="ot">=</span> <span class="fu">list</span>()</span>
+<span id="cb66-15"><a href="#cb66-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(k <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span> <span class="fu">nrow</span>(mac_orient_signal_df)){</span>
+<span id="cb66-16"><a href="#cb66-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-17"><a href="#cb66-17" aria-hidden="true" tabindex="-1"></a>  m[[k]]<span class="ot">=</span> <span class="fu">lapply</span>(IPS.clean2[,<span class="fu">c</span>(<span class="st">&quot;posX&quot;</span>,<span class="st">&quot;posY&quot;</span>,<span class="st">&quot;posZ&quot;</span>,<span class="st">&quot;rec_orient&quot;</span>,<span class="st">&quot;mac&quot;</span>)],</span>
+<span id="cb66-18"><a href="#cb66-18" aria-hidden="true" tabindex="-1"></a>            <span class="at">FUN =</span> signal_summary,</span>
+<span id="cb66-19"><a href="#cb66-19" aria-hidden="true" tabindex="-1"></a>            <span class="at">pos_x=</span>IPS.clean2<span class="sc">$</span>posX[k],</span>
+<span id="cb66-20"><a href="#cb66-20" aria-hidden="true" tabindex="-1"></a>            <span class="at">pos_y=</span>IPS.clean2<span class="sc">$</span>posY[k],</span>
+<span id="cb66-21"><a href="#cb66-21" aria-hidden="true" tabindex="-1"></a>            <span class="at">pos_z=</span>IPS.clean2<span class="sc">$</span>posZ[k] ,</span>
+<span id="cb66-22"><a href="#cb66-22" aria-hidden="true" tabindex="-1"></a>            <span class="at">rorient=</span>IPS.clean2<span class="sc">$</span>rec_orient[k],</span>
+<span id="cb66-23"><a href="#cb66-23" aria-hidden="true" tabindex="-1"></a>            <span class="co">#access = IPS.clean2$mac[k],</span></span>
+<span id="cb66-24"><a href="#cb66-24" aria-hidden="true" tabindex="-1"></a>            <span class="at">df=</span>IPS.clean2</span>
+<span id="cb66-25"><a href="#cb66-25" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb66-26"><a href="#cb66-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-27"><a href="#cb66-27" aria-hidden="true" tabindex="-1"></a><span class="co">#print(m[[k]]$mac[1])</span></span>
+<span id="cb66-28"><a href="#cb66-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-29"><a href="#cb66-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-30"><a href="#cb66-30" aria-hidden="true" tabindex="-1"></a>mac_orient_signal_df<span class="sc">$</span>avg_signal[k]<span class="ot">=</span>  m[[k]]<span class="sc">$</span>mac[<span class="dv">1</span>]</span>
+<span id="cb66-31"><a href="#cb66-31" aria-hidden="true" tabindex="-1"></a>mac_orient_signal_df<span class="sc">$</span>sd_signal[k] <span class="ot">=</span>  m[[k]]<span class="sc">$</span>mac[<span class="dv">2</span>]</span>
+<span id="cb66-32"><a href="#cb66-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-33"><a href="#cb66-33" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb66-34"><a href="#cb66-34" aria-hidden="true" tabindex="-1"></a>mac_orient_signal_df <span class="ot">=</span> <span class="fu">unique</span>(mac_orient_signal_df)</span>
+<span id="cb66-35"><a href="#cb66-35" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(mac_orient_signal_df)</span></code></pre></div>
+<pre><code>##     posX posY posZ rec_orient               mac              unique_comb
+## 1      2    0    0          0 00:14:bf:b1:97:8a    200000:14:bf:b1:97:8a
+## 2      2    0    0          0 00:0f:a3:39:e1:c0    200000:0f:a3:39:e1:c0
+## 3      2    0    0          0 00:14:bf:b1:97:81    200000:14:bf:b1:97:81
+## 4      2    0    0          0 00:14:bf:b1:97:8d    200000:14:bf:b1:97:8d
+## 5      2    0    0          0 00:0f:a3:39:dd:cd    200000:0f:a3:39:dd:cd
+## 6      2    0    0          0 00:14:bf:b1:97:90    200000:14:bf:b1:97:90
+## 7      2    0    0          0 00:14:bf:3b:c7:c6    200000:14:bf:3b:c7:c6
+## 8      2    0    0         45 00:14:bf:b1:97:8a   2004500:14:bf:b1:97:8a
+## 9      2    0    0         45 00:14:bf:3b:c7:c6   2004500:14:bf:3b:c7:c6
+## 10     2    0    0         45 00:0f:a3:39:e1:c0   2004500:0f:a3:39:e1:c0
+## 11     2    0    0         45 00:14:bf:b1:97:90   2004500:14:bf:b1:97:90
+## 12     2    0    0         45 00:14:bf:b1:97:81   2004500:14:bf:b1:97:81
+## 13     2    0    0         45 00:0f:a3:39:dd:cd   2004500:0f:a3:39:dd:cd
+## 14     2    0    0         45 00:14:bf:b1:97:8d   2004500:14:bf:b1:97:8d
+## 15     2    0    0         90 00:14:bf:b1:97:8a   2009000:14:bf:b1:97:8a
+## 16     2    0    0         90 00:0f:a3:39:e1:c0   2009000:0f:a3:39:e1:c0
+## 17     2    0    0         90 00:14:bf:b1:97:8d   2009000:14:bf:b1:97:8d
+## 18     2    0    0         90 00:14:bf:3b:c7:c6   2009000:14:bf:3b:c7:c6
+## 19     2    0    0         90 00:14:bf:b1:97:90   2009000:14:bf:b1:97:90
+## 20     2    0    0         90 00:14:bf:b1:97:81   2009000:14:bf:b1:97:81
+## 21     2    0    0         90 00:0f:a3:39:dd:cd   2009000:0f:a3:39:dd:cd
+## 22     2    0    0        135 00:14:bf:b1:97:8a  20013500:14:bf:b1:97:8a
+## 23     2    0    0        135 00:14:bf:b1:97:90  20013500:14:bf:b1:97:90
+## 24     2    0    0        135 00:0f:a3:39:e1:c0  20013500:0f:a3:39:e1:c0
+## 25     2    0    0        135 00:14:bf:b1:97:8d  20013500:14:bf:b1:97:8d
+## 26     2    0    0        135 00:14:bf:3b:c7:c6  20013500:14:bf:3b:c7:c6
+## 27     2    0    0        135 00:14:bf:b1:97:81  20013500:14:bf:b1:97:81
+## 28     2    0    0        135 00:0f:a3:39:dd:cd  20013500:0f:a3:39:dd:cd
+## 29     2    0    0        180 00:14:bf:b1:97:8a  20018000:14:bf:b1:97:8a
+## 30     2    0    0        180 00:14:bf:b1:97:90  20018000:14:bf:b1:97:90
+## 31     2    0    0        180 00:0f:a3:39:e1:c0  20018000:0f:a3:39:e1:c0
+## 32     2    0    0        180 00:14:bf:3b:c7:c6  20018000:14:bf:3b:c7:c6
+## 33     2    0    0        180 00:14:bf:b1:97:8d  20018000:14:bf:b1:97:8d
+## 34     2    0    0        180 00:14:bf:b1:97:81  20018000:14:bf:b1:97:81
+## 35     2    0    0        180 00:0f:a3:39:dd:cd  20018000:0f:a3:39:dd:cd
+## 36     2    0    0        225 00:14:bf:b1:97:8a  20022500:14:bf:b1:97:8a
+## 37     2    0    0        225 00:14:bf:3b:c7:c6  20022500:14:bf:3b:c7:c6
+## 38     2    0    0        225 00:14:bf:b1:97:8d  20022500:14:bf:b1:97:8d
+## 39     2    0    0        225 00:14:bf:b1:97:90  20022500:14:bf:b1:97:90
+## 40     2    0    0        225 00:0f:a3:39:e1:c0  20022500:0f:a3:39:e1:c0
+## 41     2    0    0        225 00:14:bf:b1:97:81  20022500:14:bf:b1:97:81
+## 42     2    0    0        225 00:0f:a3:39:dd:cd  20022500:0f:a3:39:dd:cd
+## 43     2    0    0        270 00:14:bf:b1:97:8a  20027000:14:bf:b1:97:8a
+## 44     2    0    0        270 00:14:bf:b1:97:8d  20027000:14:bf:b1:97:8d
+## 45     2    0    0        270 00:0f:a3:39:e1:c0  20027000:0f:a3:39:e1:c0
+## 46     2    0    0        270 00:14:bf:b1:97:81  20027000:14:bf:b1:97:81
+## 47     2    0    0        270 00:14:bf:3b:c7:c6  20027000:14:bf:3b:c7:c6
+## 48     2    0    0        270 00:0f:a3:39:dd:cd  20027000:0f:a3:39:dd:cd
+## 49     2    0    0        270 00:14:bf:b1:97:90  20027000:14:bf:b1:97:90
+## 50     2    0    0        315 00:14:bf:b1:97:8a  20031500:14:bf:b1:97:8a
+## 51     2    0    0        315 00:14:bf:3b:c7:c6  20031500:14:bf:3b:c7:c6
+## 52     2    0    0        315 00:0f:a3:39:e1:c0  20031500:0f:a3:39:e1:c0
+## 53     2    0    0        315 00:14:bf:b1:97:8d  20031500:14:bf:b1:97:8d
+## 54     2    0    0        315 00:14:bf:b1:97:81  20031500:14:bf:b1:97:81
+## 55     2    0    0        315 00:0f:a3:39:dd:cd  20031500:0f:a3:39:dd:cd
+## 56     2    0    0        315 00:14:bf:b1:97:90  20031500:14:bf:b1:97:90
+## 57     1    9    0          0 00:14:bf:b1:97:8a    190000:14:bf:b1:97:8a
+## 58     1    9    0          0 00:14:bf:b1:97:90    190000:14:bf:b1:97:90
+## 59     1    9    0          0 00:0f:a3:39:e1:c0    190000:0f:a3:39:e1:c0
+## 60     1    9    0          0 00:0f:a3:39:dd:cd    190000:0f:a3:39:dd:cd
+## 61     1    9    0          0 00:14:bf:b1:97:81    190000:14:bf:b1:97:81
+## 62     1    9    0          0 00:14:bf:b1:97:8d    190000:14:bf:b1:97:8d
+## 63     1    9    0          0 00:14:bf:3b:c7:c6    190000:14:bf:3b:c7:c6
+## 64     1    9    0         45 00:14:bf:b1:97:90   1904500:14:bf:b1:97:90
+## 65     1    9    0         45 00:14:bf:b1:97:8a   1904500:14:bf:b1:97:8a
+## 66     1    9    0         45 00:0f:a3:39:e1:c0   1904500:0f:a3:39:e1:c0
+## 67     1    9    0         45 00:14:bf:b1:97:8d   1904500:14:bf:b1:97:8d
+## 68     1    9    0         45 00:14:bf:3b:c7:c6   1904500:14:bf:3b:c7:c6
+## 69     1    9    0         45 00:14:bf:b1:97:81   1904500:14:bf:b1:97:81
+## 70     1    9    0         45 00:0f:a3:39:dd:cd   1904500:0f:a3:39:dd:cd
+## 71     1    9    0         90 00:14:bf:b1:97:8a   1909000:14:bf:b1:97:8a
+## 72     1    9    0         90 00:14:bf:b1:97:90   1909000:14:bf:b1:97:90
+## 73     1    9    0         90 00:0f:a3:39:e1:c0   1909000:0f:a3:39:e1:c0
+## 74     1    9    0         90 00:0f:a3:39:dd:cd   1909000:0f:a3:39:dd:cd
+## 75     1    9    0         90 00:14:bf:3b:c7:c6   1909000:14:bf:3b:c7:c6
+## 76     1    9    0         90 00:14:bf:b1:97:8d   1909000:14:bf:b1:97:8d
+## 77     1    9    0         90 00:14:bf:b1:97:81   1909000:14:bf:b1:97:81
+## 78     1    9    0        135 00:14:bf:b1:97:90  19013500:14:bf:b1:97:90
+## 79     1    9    0        135 00:0f:a3:39:e1:c0  19013500:0f:a3:39:e1:c0
+## 80     1    9    0        135 00:14:bf:3b:c7:c6  19013500:14:bf:3b:c7:c6
+## 81     1    9    0        135 00:0f:a3:39:dd:cd  19013500:0f:a3:39:dd:cd
+## 82     1    9    0        135 00:14:bf:b1:97:8a  19013500:14:bf:b1:97:8a
+## 83     1    9    0        135 00:14:bf:b1:97:8d  19013500:14:bf:b1:97:8d
+## 84     1    9    0        135 00:14:bf:b1:97:81  19013500:14:bf:b1:97:81
+## 85     1    9    0        180 00:14:bf:b1:97:90  19018000:14:bf:b1:97:90
+## 86     1    9    0        180 00:0f:a3:39:e1:c0  19018000:0f:a3:39:e1:c0
+## 87     1    9    0        180 00:14:bf:b1:97:8a  19018000:14:bf:b1:97:8a
+## 88     1    9    0        180 00:14:bf:3b:c7:c6  19018000:14:bf:3b:c7:c6
+## 89     1    9    0        180 00:14:bf:b1:97:81  19018000:14:bf:b1:97:81
+## 90     1    9    0        180 00:0f:a3:39:dd:cd  19018000:0f:a3:39:dd:cd
+## 91     1    9    0        180 00:14:bf:b1:97:8d  19018000:14:bf:b1:97:8d
+## 92     1    9    0        225 00:14:bf:b1:97:8a  19022500:14:bf:b1:97:8a
+## 93     1    9    0        225 00:0f:a3:39:e1:c0  19022500:0f:a3:39:e1:c0
+## 94     1    9    0        225 00:14:bf:b1:97:90  19022500:14:bf:b1:97:90
+## 95     1    9    0        225 00:14:bf:3b:c7:c6  19022500:14:bf:3b:c7:c6
+## 96     1    9    0        225 00:14:bf:b1:97:8d  19022500:14:bf:b1:97:8d
+## 97     1    9    0        225 00:14:bf:b1:97:81  19022500:14:bf:b1:97:81
+## 98     1    9    0        225 00:0f:a3:39:dd:cd  19022500:0f:a3:39:dd:cd
+## 99     1    9    0        270 00:14:bf:b1:97:8a  19027000:14:bf:b1:97:8a
+## 100    1    9    0        270 00:0f:a3:39:e1:c0  19027000:0f:a3:39:e1:c0
+## 101    1    9    0        270 00:14:bf:b1:97:90  19027000:14:bf:b1:97:90
+## 102    1    9    0        270 00:14:bf:b1:97:8d  19027000:14:bf:b1:97:8d
+## 103    1    9    0        270 00:0f:a3:39:dd:cd  19027000:0f:a3:39:dd:cd
+## 104    1    9    0        270 00:14:bf:3b:c7:c6  19027000:14:bf:3b:c7:c6
+## 105    1    9    0        270 00:14:bf:b1:97:81  19027000:14:bf:b1:97:81
+## 106    1    9    0        315 00:0f:a3:39:e1:c0  19031500:0f:a3:39:e1:c0
+## 107    1    9    0        315 00:14:bf:b1:97:90  19031500:14:bf:b1:97:90
+## 108    1    9    0        315 00:14:bf:3b:c7:c6  19031500:14:bf:3b:c7:c6
+## 109    1    9    0        315 00:0f:a3:39:dd:cd  19031500:0f:a3:39:dd:cd
+## 110    1    9    0        315 00:14:bf:b1:97:8d  19031500:14:bf:b1:97:8d
+## 111    1    9    0        315 00:14:bf:b1:97:81  19031500:14:bf:b1:97:81
+## 112    1    9    0        315 00:14:bf:b1:97:8a  19031500:14:bf:b1:97:8a
+## 113    2   12    0          0 00:14:bf:b1:97:8a   2120000:14:bf:b1:97:8a
+## 114    2   12    0          0 00:0f:a3:39:e1:c0   2120000:0f:a3:39:e1:c0
+## 115    2   12    0          0 00:14:bf:3b:c7:c6   2120000:14:bf:3b:c7:c6
+## 116    2   12    0          0 00:0f:a3:39:dd:cd   2120000:0f:a3:39:dd:cd
+## 117    2   12    0          0 00:14:bf:b1:97:8d   2120000:14:bf:b1:97:8d
+## 118    2   12    0          0 00:14:bf:b1:97:81   2120000:14:bf:b1:97:81
+## 119    2   12    0          0 00:14:bf:b1:97:90   2120000:14:bf:b1:97:90
+## 120    2   12    0         45 00:14:bf:b1:97:90  21204500:14:bf:b1:97:90
+## 121    2   12    0         45 00:14:bf:b1:97:8a  21204500:14:bf:b1:97:8a
+## 122    2   12    0         45 00:0f:a3:39:e1:c0  21204500:0f:a3:39:e1:c0
+## 123    2   12    0         45 00:14:bf:3b:c7:c6  21204500:14:bf:3b:c7:c6
+## 124    2   12    0         45 00:14:bf:b1:97:81  21204500:14:bf:b1:97:81
+## 125    2   12    0         45 00:14:bf:b1:97:8d  21204500:14:bf:b1:97:8d
+## 126    2   12    0         45 00:0f:a3:39:dd:cd  21204500:0f:a3:39:dd:cd
+## 127    2   12    0         90 00:14:bf:b1:97:90  21209000:14:bf:b1:97:90
+## 128    2   12    0         90 00:14:bf:b1:97:8a  21209000:14:bf:b1:97:8a
+## 129    2   12    0         90 00:0f:a3:39:e1:c0  21209000:0f:a3:39:e1:c0
+## 130    2   12    0         90 00:14:bf:b1:97:8d  21209000:14:bf:b1:97:8d
+## 131    2   12    0         90 00:0f:a3:39:dd:cd  21209000:0f:a3:39:dd:cd
+## 132    2   12    0         90 00:14:bf:b1:97:81  21209000:14:bf:b1:97:81
+## 133    2   12    0         90 00:14:bf:3b:c7:c6  21209000:14:bf:3b:c7:c6
+## 134    2   12    0        135 00:14:bf:b1:97:90 212013500:14:bf:b1:97:90
+## 135    2   12    0        135 00:14:bf:b1:97:8a 212013500:14:bf:b1:97:8a
+## 136    2   12    0        135 00:0f:a3:39:e1:c0 212013500:0f:a3:39:e1:c0
+## 137    2   12    0        135 00:0f:a3:39:dd:cd 212013500:0f:a3:39:dd:cd
+## 138    2   12    0        135 00:14:bf:b1:97:8d 212013500:14:bf:b1:97:8d
+## 139    2   12    0        135 00:14:bf:3b:c7:c6 212013500:14:bf:3b:c7:c6
+## 140    2   12    0        135 00:14:bf:b1:97:81 212013500:14:bf:b1:97:81
+## 141    2   12    0        180 00:14:bf:b1:97:8a 212018000:14:bf:b1:97:8a
+## 142    2   12    0        180 00:14:bf:b1:97:90 212018000:14:bf:b1:97:90
+## 143    2   12    0        180 00:0f:a3:39:e1:c0 212018000:0f:a3:39:e1:c0
+## 144    2   12    0        180 00:14:bf:3b:c7:c6 212018000:14:bf:3b:c7:c6
+## 145    2   12    0        180 00:0f:a3:39:dd:cd 212018000:0f:a3:39:dd:cd
+## 146    2   12    0        180 00:14:bf:b1:97:81 212018000:14:bf:b1:97:81
+## 147    2   12    0        180 00:14:bf:b1:97:8d 212018000:14:bf:b1:97:8d
+## 148    2   12    0        225 00:14:bf:b1:97:90 212022500:14:bf:b1:97:90
+## 149    2   12    0        225 00:14:bf:b1:97:8a 212022500:14:bf:b1:97:8a
+## 150    2   12    0        225 00:14:bf:3b:c7:c6 212022500:14:bf:3b:c7:c6
+## 151    2   12    0        225 00:0f:a3:39:e1:c0 212022500:0f:a3:39:e1:c0
+## 152    2   12    0        225 00:0f:a3:39:dd:cd 212022500:0f:a3:39:dd:cd
+## 153    2   12    0        225 00:14:bf:b1:97:8d 212022500:14:bf:b1:97:8d
+## 154    2   12    0        225 00:14:bf:b1:97:81 212022500:14:bf:b1:97:81
+## 155    2   12    0        270 00:14:bf:b1:97:90 212027000:14:bf:b1:97:90
+## 156    2   12    0        270 00:14:bf:b1:97:8a 212027000:14:bf:b1:97:8a
+## 157    2   12    0        270 00:0f:a3:39:e1:c0 212027000:0f:a3:39:e1:c0
+## 158    2   12    0        270 00:14:bf:3b:c7:c6 212027000:14:bf:3b:c7:c6
+## 159    2   12    0        270 00:0f:a3:39:dd:cd 212027000:0f:a3:39:dd:cd
+## 160    2   12    0        270 00:14:bf:b1:97:81 212027000:14:bf:b1:97:81
+## 161    2   12    0        270 00:14:bf:b1:97:8d 212027000:14:bf:b1:97:8d
+## 162    2   12    0        315 00:14:bf:b1:97:8a 212031500:14:bf:b1:97:8a
+## 163    2   12    0        315 00:14:bf:b1:97:90 212031500:14:bf:b1:97:90
+## 164    2   12    0        315 00:0f:a3:39:e1:c0 212031500:0f:a3:39:e1:c0
+## 165    2   12    0        315 00:14:bf:3b:c7:c6 212031500:14:bf:3b:c7:c6
+## 166    2   12    0        315 00:14:bf:b1:97:8d 212031500:14:bf:b1:97:8d
+## 167    2   12    0        315 00:14:bf:b1:97:81 212031500:14:bf:b1:97:81
+## 168    2   12    0        315 00:0f:a3:39:dd:cd 212031500:0f:a3:39:dd:cd
+## 169    2   13    0          0 00:14:bf:b1:97:8a   2130000:14:bf:b1:97:8a
+## 170    2   13    0          0 00:0f:a3:39:e1:c0   2130000:0f:a3:39:e1:c0
+## 171    2   13    0          0 00:0f:a3:39:dd:cd   2130000:0f:a3:39:dd:cd
+## 172    2   13    0          0 00:14:bf:3b:c7:c6   2130000:14:bf:3b:c7:c6
+## 173    2   13    0          0 00:14:bf:b1:97:8d   2130000:14:bf:b1:97:8d
+## 174    2   13    0          0 00:14:bf:b1:97:90   2130000:14:bf:b1:97:90
+## 175    2   13    0          0 00:14:bf:b1:97:81   2130000:14:bf:b1:97:81
+## 176    2   13    0         45 00:14:bf:b1:97:8a  21304500:14:bf:b1:97:8a
+## 177    2   13    0         45 00:14:bf:b1:97:8d  21304500:14:bf:b1:97:8d
+## 178    2   13    0         45 00:0f:a3:39:e1:c0  21304500:0f:a3:39:e1:c0
+## 179    2   13    0         45 00:14:bf:3b:c7:c6  21304500:14:bf:3b:c7:c6
+## 180    2   13    0         45 00:0f:a3:39:dd:cd  21304500:0f:a3:39:dd:cd
+## 181    2   13    0         45 00:14:bf:b1:97:81  21304500:14:bf:b1:97:81
+## 182    2   13    0         45 00:14:bf:b1:97:90  21304500:14:bf:b1:97:90
+## 183    2   13    0         90 00:14:bf:b1:97:8a  21309000:14:bf:b1:97:8a
+## 184    2   13    0         90 00:14:bf:b1:97:90  21309000:14:bf:b1:97:90
+## 185    2   13    0         90 00:0f:a3:39:e1:c0  21309000:0f:a3:39:e1:c0
+## 186    2   13    0         90 00:14:bf:3b:c7:c6  21309000:14:bf:3b:c7:c6
+## 187    2   13    0         90 00:14:bf:b1:97:8d  21309000:14:bf:b1:97:8d
+## 188    2   13    0         90 00:0f:a3:39:dd:cd  21309000:0f:a3:39:dd:cd
+## 189    2   13    0         90 00:14:bf:b1:97:81  21309000:14:bf:b1:97:81
+## 190    2   13    0        135 00:14:bf:b1:97:90 213013500:14:bf:b1:97:90
+## 191    2   13    0        135 00:0f:a3:39:e1:c0 213013500:0f:a3:39:e1:c0
+## 192    2   13    0        135 00:14:bf:3b:c7:c6 213013500:14:bf:3b:c7:c6
+## 193    2   13    0        135 00:14:bf:b1:97:8d 213013500:14:bf:b1:97:8d
+## 194    2   13    0        135 00:14:bf:b1:97:81 213013500:14:bf:b1:97:81
+## 195    2   13    0        135 00:0f:a3:39:dd:cd 213013500:0f:a3:39:dd:cd
+## 196    2   13    0        135 00:14:bf:b1:97:8a 213013500:14:bf:b1:97:8a
+## 197    2   13    0        180 00:14:bf:b1:97:8a 213018000:14:bf:b1:97:8a
+## 198    2   13    0        180 00:14:bf:b1:97:90 213018000:14:bf:b1:97:90
+## 199    2   13    0        180 00:0f:a3:39:e1:c0 213018000:0f:a3:39:e1:c0
+## 200    2   13    0        180 00:14:bf:3b:c7:c6 213018000:14:bf:3b:c7:c6
+## 201    2   13    0        180 00:14:bf:b1:97:81 213018000:14:bf:b1:97:81
+## 202    2   13    0        180 00:0f:a3:39:dd:cd 213018000:0f:a3:39:dd:cd
+## 203    2   13    0        180 00:14:bf:b1:97:8d 213018000:14:bf:b1:97:8d
+## 204    2   13    0        225 00:14:bf:b1:97:8a 213022500:14:bf:b1:97:8a
+## 205    2   13    0        225 00:0f:a3:39:e1:c0 213022500:0f:a3:39:e1:c0
+## 206    2   13    0        225 00:14:bf:3b:c7:c6 213022500:14:bf:3b:c7:c6
+## 207    2   13    0        225 00:14:bf:b1:97:81 213022500:14:bf:b1:97:81
+## 208    2   13    0        225 00:0f:a3:39:dd:cd 213022500:0f:a3:39:dd:cd
+## 209    2   13    0        225 00:14:bf:b1:97:90 213022500:14:bf:b1:97:90
+## 210    2   13    0        225 00:14:bf:b1:97:8d 213022500:14:bf:b1:97:8d
+## 211    2   13    0        270 00:14:bf:b1:97:90 213027000:14:bf:b1:97:90
+## 212    2   13    0        270 00:14:bf:b1:97:8a 213027000:14:bf:b1:97:8a
+## 213    2   13    0        270 00:0f:a3:39:e1:c0 213027000:0f:a3:39:e1:c0
+## 214    2   13    0        270 00:14:bf:3b:c7:c6 213027000:14:bf:3b:c7:c6
+## 215    2   13    0        270 00:14:bf:b1:97:8d 213027000:14:bf:b1:97:8d
+## 216    2   13    0        270 00:14:bf:b1:97:81 213027000:14:bf:b1:97:81
+## 217    2   13    0        270 00:0f:a3:39:dd:cd 213027000:0f:a3:39:dd:cd
+## 218    2   13    0        315 00:14:bf:b1:97:90 213031500:14:bf:b1:97:90
+## 219    2   13    0        315 00:14:bf:b1:97:8a 213031500:14:bf:b1:97:8a
+## 220    2   13    0        315 00:0f:a3:39:e1:c0 213031500:0f:a3:39:e1:c0
+## 221    2   13    0        315 00:14:bf:b1:97:81 213031500:14:bf:b1:97:81
+## 222    2   13    0        315 00:0f:a3:39:dd:cd 213031500:0f:a3:39:dd:cd
+## 223    2   13    0        315 00:14:bf:b1:97:8d 213031500:14:bf:b1:97:8d
+## 224    2   13    0        315 00:14:bf:3b:c7:c6 213031500:14:bf:3b:c7:c6
+## 225    6    3    0          0 00:0f:a3:39:e1:c0    630000:0f:a3:39:e1:c0
+## 226    6    3    0          0 00:14:bf:3b:c7:c6    630000:14:bf:3b:c7:c6
+## 227    6    3    0          0 00:14:bf:b1:97:81    630000:14:bf:b1:97:81
+## 228    6    3    0          0 00:14:bf:b1:97:8a    630000:14:bf:b1:97:8a
+## 229    6    3    0          0 00:14:bf:b1:97:90    630000:14:bf:b1:97:90
+## 230    6    3    0          0 00:0f:a3:39:dd:cd    630000:0f:a3:39:dd:cd
+## 231    6    3    0          0 00:14:bf:b1:97:8d    630000:14:bf:b1:97:8d
+## 232    6    3    0         45 00:14:bf:b1:97:8a   6304500:14:bf:b1:97:8a
+## 233    6    3    0         45 00:14:bf:b1:97:8d   6304500:14:bf:b1:97:8d
+## 234    6    3    0         45 00:0f:a3:39:e1:c0   6304500:0f:a3:39:e1:c0
+## 235    6    3    0         45 00:0f:a3:39:dd:cd   6304500:0f:a3:39:dd:cd
+## 236    6    3    0         45 00:14:bf:b1:97:90   6304500:14:bf:b1:97:90
+## 237    6    3    0         45 00:14:bf:b1:97:81   6304500:14:bf:b1:97:81
+## 238    6    3    0         45 00:14:bf:3b:c7:c6   6304500:14:bf:3b:c7:c6
+## 239    6    3    0         90 00:0f:a3:39:e1:c0   6309000:0f:a3:39:e1:c0
+## 240    6    3    0         90 00:14:bf:b1:97:8d   6309000:14:bf:b1:97:8d
+## 241    6    3    0         90 00:14:bf:b1:97:81   6309000:14:bf:b1:97:81
+## 242    6    3    0         90 00:14:bf:b1:97:8a   6309000:14:bf:b1:97:8a
+## 243    6    3    0         90 00:14:bf:3b:c7:c6   6309000:14:bf:3b:c7:c6
+## 244    6    3    0         90 00:14:bf:b1:97:90   6309000:14:bf:b1:97:90
+## 245    6    3    0         90 00:0f:a3:39:dd:cd   6309000:0f:a3:39:dd:cd
+## 246    6    3    0        135 00:14:bf:b1:97:8a  63013500:14:bf:b1:97:8a
+## 247    6    3    0        135 00:14:bf:b1:97:8d  63013500:14:bf:b1:97:8d
+## 248    6    3    0        135 00:0f:a3:39:e1:c0  63013500:0f:a3:39:e1:c0
+## 249    6    3    0        135 00:14:bf:b1:97:90  63013500:14:bf:b1:97:90
+## 250    6    3    0        135 00:14:bf:b1:97:81  63013500:14:bf:b1:97:81
+## 251    6    3    0        135 00:0f:a3:39:dd:cd  63013500:0f:a3:39:dd:cd
+## 252    6    3    0        135 00:14:bf:3b:c7:c6  63013500:14:bf:3b:c7:c6
+## 253    6    3    0        180 00:14:bf:b1:97:81  63018000:14:bf:b1:97:81
+## 254    6    3    0        180 00:14:bf:b1:97:8d  63018000:14:bf:b1:97:8d
+## 255    6    3    0        180 00:14:bf:3b:c7:c6  63018000:14:bf:3b:c7:c6
+## 256    6    3    0        180 00:0f:a3:39:e1:c0  63018000:0f:a3:39:e1:c0
+## 257    6    3    0        180 00:14:bf:b1:97:90  63018000:14:bf:b1:97:90
+## 258    6    3    0        180 00:0f:a3:39:dd:cd  63018000:0f:a3:39:dd:cd
+## 259    6    3    0        180 00:14:bf:b1:97:8a  63018000:14:bf:b1:97:8a
+## 260    6    3    0        225 00:0f:a3:39:e1:c0  63022500:0f:a3:39:e1:c0
+## 261    6    3    0        225 00:14:bf:b1:97:90  63022500:14:bf:b1:97:90
+## 262    6    3    0        225 00:14:bf:3b:c7:c6  63022500:14:bf:3b:c7:c6
+## 263    6    3    0        225 00:14:bf:b1:97:8d  63022500:14:bf:b1:97:8d
+## 264    6    3    0        225 00:14:bf:b1:97:8a  63022500:14:bf:b1:97:8a
+## 265    6    3    0        225 00:0f:a3:39:dd:cd  63022500:0f:a3:39:dd:cd
+## 266    6    3    0        225 00:14:bf:b1:97:81  63022500:14:bf:b1:97:81
+## 267    6    3    0        270 00:0f:a3:39:e1:c0  63027000:0f:a3:39:e1:c0
+## 268    6    3    0        270 00:14:bf:b1:97:8a  63027000:14:bf:b1:97:8a
+## 269    6    3    0        270 00:14:bf:3b:c7:c6  63027000:14:bf:3b:c7:c6
+## 270    6    3    0        270 00:14:bf:b1:97:81  63027000:14:bf:b1:97:81
+## 271    6    3    0        270 00:14:bf:b1:97:8d  63027000:14:bf:b1:97:8d
+## 272    6    3    0        270 00:0f:a3:39:dd:cd  63027000:0f:a3:39:dd:cd
+## 273    6    3    0        270 00:14:bf:b1:97:90  63027000:14:bf:b1:97:90
+## 274    6    3    0        315 00:0f:a3:39:e1:c0  63031500:0f:a3:39:e1:c0
+## 275    6    3    0        315 00:14:bf:b1:97:8a  63031500:14:bf:b1:97:8a
+## 276    6    3    0        315 00:14:bf:b1:97:8d  63031500:14:bf:b1:97:8d
+## 277    6    3    0        315 00:14:bf:3b:c7:c6  63031500:14:bf:3b:c7:c6
+## 278    6    3    0        315 00:0f:a3:39:dd:cd  63031500:0f:a3:39:dd:cd
+## 279    6    3    0        315 00:14:bf:b1:97:81  63031500:14:bf:b1:97:81
+## 280    6    3    0        315 00:14:bf:b1:97:90  63031500:14:bf:b1:97:90
+## 281   11    3    0          0 00:0f:a3:39:e1:c0   1130000:0f:a3:39:e1:c0
+## 282   11    3    0          0 00:14:bf:b1:97:8a   1130000:14:bf:b1:97:8a
+## 283   11    3    0          0 00:14:bf:3b:c7:c6   1130000:14:bf:3b:c7:c6
+## 284   11    3    0          0 00:14:bf:b1:97:8d   1130000:14:bf:b1:97:8d
+## 285   11    3    0          0 00:14:bf:b1:97:90   1130000:14:bf:b1:97:90
+## 286   11    3    0          0 00:0f:a3:39:dd:cd   1130000:0f:a3:39:dd:cd
+## 287   11    3    0          0 00:14:bf:b1:97:81   1130000:14:bf:b1:97:81
+## 288   11    3    0         45 00:14:bf:3b:c7:c6  11304500:14:bf:3b:c7:c6
+## 289   11    3    0         45 00:0f:a3:39:e1:c0  11304500:0f:a3:39:e1:c0
+## 290   11    3    0         45 00:14:bf:b1:97:81  11304500:14:bf:b1:97:81
+## 291   11    3    0         45 00:14:bf:b1:97:8a  11304500:14:bf:b1:97:8a
+## 292   11    3    0         45 00:0f:a3:39:dd:cd  11304500:0f:a3:39:dd:cd
+## 293   11    3    0         45 00:14:bf:b1:97:8d  11304500:14:bf:b1:97:8d
+## 294   11    3    0         45 00:14:bf:b1:97:90  11304500:14:bf:b1:97:90
+## 295   11    3    0         90 00:0f:a3:39:e1:c0  11309000:0f:a3:39:e1:c0
+## 296   11    3    0         90 00:14:bf:b1:97:8d  11309000:14:bf:b1:97:8d
+## 297   11    3    0         90 00:14:bf:b1:97:8a  11309000:14:bf:b1:97:8a
+## 298   11    3    0         90 00:14:bf:b1:97:81  11309000:14:bf:b1:97:81
+## 299   11    3    0         90 00:14:bf:b1:97:90  11309000:14:bf:b1:97:90
+## 300   11    3    0         90 00:0f:a3:39:dd:cd  11309000:0f:a3:39:dd:cd
+## 301   11    3    0         90 00:14:bf:3b:c7:c6  11309000:14:bf:3b:c7:c6
+## 302   11    3    0        135 00:14:bf:b1:97:81 113013500:14:bf:b1:97:81
+## 303   11    3    0        135 00:0f:a3:39:e1:c0 113013500:0f:a3:39:e1:c0
+## 304   11    3    0        135 00:14:bf:b1:97:8a 113013500:14:bf:b1:97:8a
+## 305   11    3    0        135 00:14:bf:b1:97:90 113013500:14:bf:b1:97:90
+## 306   11    3    0        135 00:0f:a3:39:dd:cd 113013500:0f:a3:39:dd:cd
+## 307   11    3    0        135 00:14:bf:3b:c7:c6 113013500:14:bf:3b:c7:c6
+## 308   11    3    0        135 00:14:bf:b1:97:8d 113013500:14:bf:b1:97:8d
+## 309   11    3    0        180 00:14:bf:b1:97:81 113018000:14:bf:b1:97:81
+## 310   11    3    0        180 00:14:bf:3b:c7:c6 113018000:14:bf:3b:c7:c6
+## 311   11    3    0        180 00:0f:a3:39:e1:c0 113018000:0f:a3:39:e1:c0
+## 312   11    3    0        180 00:14:bf:b1:97:8a 113018000:14:bf:b1:97:8a
+## 313   11    3    0        180 00:14:bf:b1:97:8d 113018000:14:bf:b1:97:8d
+## 314   11    3    0        180 00:0f:a3:39:dd:cd 113018000:0f:a3:39:dd:cd
+## 315   11    3    0        180 00:14:bf:b1:97:90 113018000:14:bf:b1:97:90
+## 316   11    3    0        225 00:14:bf:3b:c7:c6 113022500:14:bf:3b:c7:c6
+## 317   11    3    0        225 00:14:bf:b1:97:8a 113022500:14:bf:b1:97:8a
+## 318   11    3    0        225 00:14:bf:b1:97:81 113022500:14:bf:b1:97:81
+## 319   11    3    0        225 00:14:bf:b1:97:8d 113022500:14:bf:b1:97:8d
+## 320   11    3    0        225 00:0f:a3:39:e1:c0 113022500:0f:a3:39:e1:c0
+## 321   11    3    0        225 00:14:bf:b1:97:90 113022500:14:bf:b1:97:90
+## 322   11    3    0        225 00:0f:a3:39:dd:cd 113022500:0f:a3:39:dd:cd
+## 323   11    3    0        270 00:0f:a3:39:e1:c0 113027000:0f:a3:39:e1:c0
+## 324   11    3    0        270 00:14:bf:b1:97:8a 113027000:14:bf:b1:97:8a
+## 325   11    3    0        270 00:14:bf:3b:c7:c6 113027000:14:bf:3b:c7:c6
+## 326   11    3    0        270 00:14:bf:b1:97:81 113027000:14:bf:b1:97:81
+## 327   11    3    0        270 00:14:bf:b1:97:8d 113027000:14:bf:b1:97:8d
+## 328   11    3    0        270 00:14:bf:b1:97:90 113027000:14:bf:b1:97:90
+## 329   11    3    0        270 00:0f:a3:39:dd:cd 113027000:0f:a3:39:dd:cd
+## 330   11    3    0        315 00:14:bf:3b:c7:c6 113031500:14:bf:3b:c7:c6
+## 331   11    3    0        315 00:14:bf:b1:97:8d 113031500:14:bf:b1:97:8d
+## 332   11    3    0        315 00:0f:a3:39:e1:c0 113031500:0f:a3:39:e1:c0
+## 333   11    3    0        315 00:14:bf:b1:97:8a 113031500:14:bf:b1:97:8a
+## 334   11    3    0        315 00:14:bf:b1:97:81 113031500:14:bf:b1:97:81
+## 335   11    3    0        315 00:14:bf:b1:97:90 113031500:14:bf:b1:97:90
+## 336   11    3    0        315 00:0f:a3:39:dd:cd 113031500:0f:a3:39:dd:cd
+## 337   10    4    0          0 00:14:bf:3b:c7:c6   1040000:14:bf:3b:c7:c6
+## 338   10    4    0          0 00:0f:a3:39:e1:c0   1040000:0f:a3:39:e1:c0
+## 339   10    4    0          0 00:14:bf:b1:97:8a   1040000:14:bf:b1:97:8a
+## 340   10    4    0          0 00:14:bf:b1:97:8d   1040000:14:bf:b1:97:8d
+## 341   10    4    0          0 00:14:bf:b1:97:81   1040000:14:bf:b1:97:81
+## 342   10    4    0          0 00:0f:a3:39:dd:cd   1040000:0f:a3:39:dd:cd
+## 343   10    4    0          0 00:14:bf:b1:97:90   1040000:14:bf:b1:97:90
+## 344   10    4    0         45 00:14:bf:3b:c7:c6  10404500:14:bf:3b:c7:c6
+## 345   10    4    0         45 00:14:bf:b1:97:8d  10404500:14:bf:b1:97:8d
+## 346   10    4    0         45 00:14:bf:b1:97:81  10404500:14:bf:b1:97:81
+## 347   10    4    0         45 00:14:bf:b1:97:8a  10404500:14:bf:b1:97:8a
+## 348   10    4    0         45 00:0f:a3:39:e1:c0  10404500:0f:a3:39:e1:c0
+## 349   10    4    0         45 00:0f:a3:39:dd:cd  10404500:0f:a3:39:dd:cd
+## 350   10    4    0         45 00:14:bf:b1:97:90  10404500:14:bf:b1:97:90
+## 351   10    4    0         90 00:14:bf:3b:c7:c6  10409000:14:bf:3b:c7:c6
+## 352   10    4    0         90 00:14:bf:b1:97:81  10409000:14:bf:b1:97:81
+## 353   10    4    0         90 00:14:bf:b1:97:8d  10409000:14:bf:b1:97:8d
+## 354   10    4    0         90 00:0f:a3:39:e1:c0  10409000:0f:a3:39:e1:c0
+## 355   10    4    0         90 00:14:bf:b1:97:8a  10409000:14:bf:b1:97:8a
+## 356   10    4    0         90 00:14:bf:b1:97:90  10409000:14:bf:b1:97:90
+## 357   10    4    0         90 00:0f:a3:39:dd:cd  10409000:0f:a3:39:dd:cd
+## 358   10    4    0        135 00:0f:a3:39:e1:c0 104013500:0f:a3:39:e1:c0
+## 359   10    4    0        135 00:14:bf:3b:c7:c6 104013500:14:bf:3b:c7:c6
+## 360   10    4    0        135 00:14:bf:b1:97:81 104013500:14:bf:b1:97:81
+## 361   10    4    0        135 00:14:bf:b1:97:8d 104013500:14:bf:b1:97:8d
+## 362   10    4    0        135 00:14:bf:b1:97:8a 104013500:14:bf:b1:97:8a
+## 363   10    4    0        135 00:0f:a3:39:dd:cd 104013500:0f:a3:39:dd:cd
+## 364   10    4    0        135 00:14:bf:b1:97:90 104013500:14:bf:b1:97:90
+## 365   10    4    0        180 00:0f:a3:39:e1:c0 104018000:0f:a3:39:e1:c0
+## 366   10    4    0        180 00:14:bf:3b:c7:c6 104018000:14:bf:3b:c7:c6
+## 367   10    4    0        180 00:14:bf:b1:97:81 104018000:14:bf:b1:97:81
+## 368   10    4    0        180 00:14:bf:b1:97:8a 104018000:14:bf:b1:97:8a
+## 369   10    4    0        180 00:0f:a3:39:dd:cd 104018000:0f:a3:39:dd:cd
+## 370   10    4    0        180 00:14:bf:b1:97:90 104018000:14:bf:b1:97:90
+## 371   10    4    0        180 00:14:bf:b1:97:8d 104018000:14:bf:b1:97:8d
+## 372   10    4    0        225 00:14:bf:b1:97:81 104022500:14:bf:b1:97:81
+## 373   10    4    0        225 00:14:bf:3b:c7:c6 104022500:14:bf:3b:c7:c6
+## 374   10    4    0        225 00:0f:a3:39:e1:c0 104022500:0f:a3:39:e1:c0
+## 375   10    4    0        225 00:0f:a3:39:dd:cd 104022500:0f:a3:39:dd:cd
+## 376   10    4    0        225 00:14:bf:b1:97:90 104022500:14:bf:b1:97:90
+## 377   10    4    0        225 00:14:bf:b1:97:8a 104022500:14:bf:b1:97:8a
+## 378   10    4    0        225 00:14:bf:b1:97:8d 104022500:14:bf:b1:97:8d
+## 379   10    4    0        270 00:0f:a3:39:e1:c0 104027000:0f:a3:39:e1:c0
+## 380   10    4    0        270 00:14:bf:3b:c7:c6 104027000:14:bf:3b:c7:c6
+## 381   10    4    0        270 00:14:bf:b1:97:8d 104027000:14:bf:b1:97:8d
+## 382   10    4    0        270 00:14:bf:b1:97:8a 104027000:14:bf:b1:97:8a
+## 383   10    4    0        270 00:14:bf:b1:97:81 104027000:14:bf:b1:97:81
+## 384   10    4    0        270 00:0f:a3:39:dd:cd 104027000:0f:a3:39:dd:cd
+## 385   10    4    0        270 00:14:bf:b1:97:90 104027000:14:bf:b1:97:90
+## 386   10    4    0        315 00:0f:a3:39:e1:c0 104031500:0f:a3:39:e1:c0
+## 387   10    4    0        315 00:14:bf:b1:97:8a 104031500:14:bf:b1:97:8a
+## 388   10    4    0        315 00:14:bf:3b:c7:c6 104031500:14:bf:3b:c7:c6
+## 389   10    4    0        315 00:14:bf:b1:97:81 104031500:14:bf:b1:97:81
+## 390   10    4    0        315 00:14:bf:b1:97:90 104031500:14:bf:b1:97:90
+## 391   10    4    0        315 00:0f:a3:39:dd:cd 104031500:0f:a3:39:dd:cd
+## 392   10    4    0        315 00:14:bf:b1:97:8d 104031500:14:bf:b1:97:8d
+## 393   11    4    0          0 00:14:bf:b1:97:8a   1140000:14:bf:b1:97:8a
+## 394   11    4    0          0 00:14:bf:b1:97:81   1140000:14:bf:b1:97:81
+## 395   11    4    0          0 00:14:bf:b1:97:8d   1140000:14:bf:b1:97:8d
+## 396   11    4    0          0 00:0f:a3:39:e1:c0   1140000:0f:a3:39:e1:c0
+## 397   11    4    0          0 00:0f:a3:39:dd:cd   1140000:0f:a3:39:dd:cd
+## 398   11    4    0          0 00:14:bf:b1:97:90   1140000:14:bf:b1:97:90
+## 399   11    4    0          0 00:14:bf:3b:c7:c6   1140000:14:bf:3b:c7:c6
+## 400   11    4    0         45 00:14:bf:3b:c7:c6  11404500:14:bf:3b:c7:c6
+## 401   11    4    0         45 00:14:bf:b1:97:8d  11404500:14:bf:b1:97:8d
+## 402   11    4    0         45 00:0f:a3:39:e1:c0  11404500:0f:a3:39:e1:c0
+## 403   11    4    0         45 00:14:bf:b1:97:81  11404500:14:bf:b1:97:81
+## 404   11    4    0         45 00:0f:a3:39:dd:cd  11404500:0f:a3:39:dd:cd
+## 405   11    4    0         45 00:14:bf:b1:97:90  11404500:14:bf:b1:97:90
+## 406   11    4    0         45 00:14:bf:b1:97:8a  11404500:14:bf:b1:97:8a
+## 407   11    4    0         90 00:14:bf:b1:97:81  11409000:14:bf:b1:97:81
+## 408   11    4    0         90 00:14:bf:3b:c7:c6  11409000:14:bf:3b:c7:c6
+## 409   11    4    0         90 00:14:bf:b1:97:8a  11409000:14:bf:b1:97:8a
+## 410   11    4    0         90 00:0f:a3:39:e1:c0  11409000:0f:a3:39:e1:c0
+## 411   11    4    0         90 00:14:bf:b1:97:90  11409000:14:bf:b1:97:90
+## 412   11    4    0         90 00:0f:a3:39:dd:cd  11409000:0f:a3:39:dd:cd
+## 413   11    4    0         90 00:14:bf:b1:97:8d  11409000:14:bf:b1:97:8d
+## 414   11    4    0        135 00:0f:a3:39:e1:c0 114013500:0f:a3:39:e1:c0
+## 415   11    4    0        135 00:14:bf:3b:c7:c6 114013500:14:bf:3b:c7:c6
+## 416   11    4    0        135 00:14:bf:b1:97:81 114013500:14:bf:b1:97:81
+## 417   11    4    0        135 00:14:bf:b1:97:8a 114013500:14:bf:b1:97:8a
+## 418   11    4    0        135 00:0f:a3:39:dd:cd 114013500:0f:a3:39:dd:cd
+## 419   11    4    0        135 00:14:bf:b1:97:8d 114013500:14:bf:b1:97:8d
+## 420   11    4    0        135 00:14:bf:b1:97:90 114013500:14:bf:b1:97:90
+## 421   11    4    0        180 00:14:bf:3b:c7:c6 114018000:14:bf:3b:c7:c6
+## 422   11    4    0        180 00:14:bf:b1:97:81 114018000:14:bf:b1:97:81
+## 423   11    4    0        180 00:0f:a3:39:e1:c0 114018000:0f:a3:39:e1:c0
+## 424   11    4    0        180 00:14:bf:b1:97:8d 114018000:14:bf:b1:97:8d
+## 425   11    4    0        180 00:14:bf:b1:97:8a 114018000:14:bf:b1:97:8a
+## 426   11    4    0        180 00:0f:a3:39:dd:cd 114018000:0f:a3:39:dd:cd
+## 427   11    4    0        180 00:14:bf:b1:97:90 114018000:14:bf:b1:97:90
+## 428   11    4    0        225 00:14:bf:3b:c7:c6 114022500:14:bf:3b:c7:c6
+## 429   11    4    0        225 00:14:bf:b1:97:81 114022500:14:bf:b1:97:81
+## 430   11    4    0        225 00:0f:a3:39:e1:c0 114022500:0f:a3:39:e1:c0
+## 431   11    4    0        225 00:14:bf:b1:97:90 114022500:14:bf:b1:97:90
+## 432   11    4    0        225 00:0f:a3:39:dd:cd 114022500:0f:a3:39:dd:cd
+## 433   11    4    0        225 00:14:bf:b1:97:8a 114022500:14:bf:b1:97:8a
+## 434   11    4    0        225 00:14:bf:b1:97:8d 114022500:14:bf:b1:97:8d
+## 435   11    4    0        270 00:14:bf:b1:97:8a 114027000:14:bf:b1:97:8a
+## 436   11    4    0        270 00:14:bf:3b:c7:c6 114027000:14:bf:3b:c7:c6
+## 437   11    4    0        270 00:14:bf:b1:97:81 114027000:14:bf:b1:97:81
+## 438   11    4    0        270 00:14:bf:b1:97:90 114027000:14:bf:b1:97:90
+## 439   11    4    0        270 00:0f:a3:39:e1:c0 114027000:0f:a3:39:e1:c0
+## 440   11    4    0        270 00:14:bf:b1:97:8d 114027000:14:bf:b1:97:8d
+## 441   11    4    0        270 00:0f:a3:39:dd:cd 114027000:0f:a3:39:dd:cd
+## 442   11    4    0        315 00:14:bf:b1:97:8a 114031500:14:bf:b1:97:8a
+## 443   11    4    0        315 00:14:bf:3b:c7:c6 114031500:14:bf:3b:c7:c6
+## 444   11    4    0        315 00:14:bf:b1:97:8d 114031500:14:bf:b1:97:8d
+## 445   11    4    0        315 00:14:bf:b1:97:81 114031500:14:bf:b1:97:81
+## 446   11    4    0        315 00:0f:a3:39:e1:c0 114031500:0f:a3:39:e1:c0
+## 447   11    4    0        315 00:14:bf:b1:97:90 114031500:14:bf:b1:97:90
+## 448   11    4    0        315 00:0f:a3:39:dd:cd 114031500:0f:a3:39:dd:cd
+## 449   13    4    0          0 00:14:bf:3b:c7:c6   1340000:14:bf:3b:c7:c6
+## 450   13    4    0          0 00:14:bf:b1:97:81   1340000:14:bf:b1:97:81
+## 451   13    4    0          0 00:0f:a3:39:e1:c0   1340000:0f:a3:39:e1:c0
+## 452   13    4    0          0 00:14:bf:b1:97:8d   1340000:14:bf:b1:97:8d
+## 453   13    4    0          0 00:14:bf:b1:97:8a   1340000:14:bf:b1:97:8a
+## 454   13    4    0          0 00:14:bf:b1:97:90   1340000:14:bf:b1:97:90
+## 455   13    4    0          0 00:0f:a3:39:dd:cd   1340000:0f:a3:39:dd:cd
+## 456   13    4    0         45 00:14:bf:3b:c7:c6  13404500:14:bf:3b:c7:c6
+## 457   13    4    0         45 00:0f:a3:39:e1:c0  13404500:0f:a3:39:e1:c0
+## 458   13    4    0         45 00:14:bf:b1:97:81  13404500:14:bf:b1:97:81
+## 459   13    4    0         45 00:14:bf:b1:97:8a  13404500:14:bf:b1:97:8a
+## 460   13    4    0         45 00:14:bf:b1:97:8d  13404500:14:bf:b1:97:8d
+## 461   13    4    0         45 00:14:bf:b1:97:90  13404500:14:bf:b1:97:90
+## 462   13    4    0         45 00:0f:a3:39:dd:cd  13404500:0f:a3:39:dd:cd
+## 463   13    4    0         90 00:0f:a3:39:e1:c0  13409000:0f:a3:39:e1:c0
+## 464   13    4    0         90 00:14:bf:3b:c7:c6  13409000:14:bf:3b:c7:c6
+## 465   13    4    0         90 00:14:bf:b1:97:8d  13409000:14:bf:b1:97:8d
+## 466   13    4    0         90 00:14:bf:b1:97:90  13409000:14:bf:b1:97:90
+## 467   13    4    0         90 00:0f:a3:39:dd:cd  13409000:0f:a3:39:dd:cd
+## 468   13    4    0         90 00:14:bf:b1:97:81  13409000:14:bf:b1:97:81
+## 469   13    4    0         90 00:14:bf:b1:97:8a  13409000:14:bf:b1:97:8a
+## 470   13    4    0        135 00:14:bf:b1:97:81 134013500:14:bf:b1:97:81
+## 471   13    4    0        135 00:0f:a3:39:e1:c0 134013500:0f:a3:39:e1:c0
+## 472   13    4    0        135 00:14:bf:b1:97:8a 134013500:14:bf:b1:97:8a
+## 473   13    4    0        135 00:14:bf:b1:97:90 134013500:14:bf:b1:97:90
+## 474   13    4    0        135 00:0f:a3:39:dd:cd 134013500:0f:a3:39:dd:cd
+## 475   13    4    0        135 00:14:bf:3b:c7:c6 134013500:14:bf:3b:c7:c6
+## 476   13    4    0        135 00:14:bf:b1:97:8d 134013500:14:bf:b1:97:8d
+## 477   13    4    0        180 00:14:bf:3b:c7:c6 134018000:14:bf:3b:c7:c6
+## 478   13    4    0        180 00:14:bf:b1:97:81 134018000:14:bf:b1:97:81
+## 479   13    4    0        180 00:0f:a3:39:e1:c0 134018000:0f:a3:39:e1:c0
+## 480   13    4    0        180 00:14:bf:b1:97:8a 134018000:14:bf:b1:97:8a
+## 481   13    4    0        180 00:14:bf:b1:97:8d 134018000:14:bf:b1:97:8d
+## 482   13    4    0        180 00:0f:a3:39:dd:cd 134018000:0f:a3:39:dd:cd
+## 483   13    4    0        180 00:14:bf:b1:97:90 134018000:14:bf:b1:97:90
+## 484   13    4    0        225 00:14:bf:3b:c7:c6 134022500:14:bf:3b:c7:c6
+## 485   13    4    0        225 00:14:bf:b1:97:8a 134022500:14:bf:b1:97:8a
+## 486   13    4    0        225 00:14:bf:b1:97:81 134022500:14:bf:b1:97:81
+## 487   13    4    0        225 00:0f:a3:39:e1:c0 134022500:0f:a3:39:e1:c0
+## 488   13    4    0        225 00:0f:a3:39:dd:cd 134022500:0f:a3:39:dd:cd
+## 489   13    4    0        225 00:14:bf:b1:97:8d 134022500:14:bf:b1:97:8d
+## 490   13    4    0        225 00:14:bf:b1:97:90 134022500:14:bf:b1:97:90
+## 491   13    4    0        270 00:14:bf:3b:c7:c6 134027000:14:bf:3b:c7:c6
+## 492   13    4    0        270 00:14:bf:b1:97:8a 134027000:14:bf:b1:97:8a
+## 493   13    4    0        270 00:14:bf:b1:97:81 134027000:14:bf:b1:97:81
+## 494   13    4    0        270 00:0f:a3:39:e1:c0 134027000:0f:a3:39:e1:c0
+## 495   13    4    0        270 00:14:bf:b1:97:90 134027000:14:bf:b1:97:90
+## 496   13    4    0        270 00:0f:a3:39:dd:cd 134027000:0f:a3:39:dd:cd
+## 497   13    4    0        270 00:14:bf:b1:97:8d 134027000:14:bf:b1:97:8d
+## 498   13    4    0        315 00:14:bf:3b:c7:c6 134031500:14:bf:3b:c7:c6
+## 499   13    4    0        315 00:14:bf:b1:97:8a 134031500:14:bf:b1:97:8a
+## 500   13    4    0        315 00:14:bf:b1:97:81 134031500:14:bf:b1:97:81
+## 501   13    4    0        315 00:14:bf:b1:97:8d 134031500:14:bf:b1:97:8d
+## 502   13    4    0        315 00:0f:a3:39:e1:c0 134031500:0f:a3:39:e1:c0
+## 503   13    4    0        315 00:0f:a3:39:dd:cd 134031500:0f:a3:39:dd:cd
+## 504   13    4    0        315 00:14:bf:b1:97:90 134031500:14:bf:b1:97:90
+## 505    8    8    0          0 00:14:bf:b1:97:8a    880000:14:bf:b1:97:8a
+## 506    8    8    0          0 00:0f:a3:39:e1:c0    880000:0f:a3:39:e1:c0
+## 507    8    8    0          0 00:14:bf:b1:97:8d    880000:14:bf:b1:97:8d
+## 508    8    8    0          0 00:14:bf:3b:c7:c6    880000:14:bf:3b:c7:c6
+## 509    8    8    0          0 00:14:bf:b1:97:90    880000:14:bf:b1:97:90
+## 510    8    8    0          0 00:0f:a3:39:dd:cd    880000:0f:a3:39:dd:cd
+## 511    8    8    0          0 00:14:bf:b1:97:81    880000:14:bf:b1:97:81
+## 512    8    8    0         45 00:14:bf:b1:97:8d   8804500:14:bf:b1:97:8d
+## 513    8    8    0         45 00:0f:a3:39:e1:c0   8804500:0f:a3:39:e1:c0
+## 514    8    8    0         45 00:14:bf:3b:c7:c6   8804500:14:bf:3b:c7:c6
+## 515    8    8    0         45 00:14:bf:b1:97:8a   8804500:14:bf:b1:97:8a
+## 516    8    8    0         45 00:14:bf:b1:97:81   8804500:14:bf:b1:97:81
+## 517    8    8    0         45 00:0f:a3:39:dd:cd   8804500:0f:a3:39:dd:cd
+## 518    8    8    0         45 00:14:bf:b1:97:90   8804500:14:bf:b1:97:90
+## 519    8    8    0         90 00:14:bf:b1:97:8d   8809000:14:bf:b1:97:8d
+## 520    8    8    0         90 00:0f:a3:39:e1:c0   8809000:0f:a3:39:e1:c0
+## 521    8    8    0         90 00:14:bf:3b:c7:c6   8809000:14:bf:3b:c7:c6
+## 522    8    8    0         90 00:14:bf:b1:97:90   8809000:14:bf:b1:97:90
+## 523    8    8    0         90 00:14:bf:b1:97:8a   8809000:14:bf:b1:97:8a
+## 524    8    8    0         90 00:0f:a3:39:dd:cd   8809000:0f:a3:39:dd:cd
+## 525    8    8    0         90 00:14:bf:b1:97:81   8809000:14:bf:b1:97:81
+## 526    8    8    0        135 00:14:bf:b1:97:8d  88013500:14:bf:b1:97:8d
+## 527    8    8    0        135 00:0f:a3:39:e1:c0  88013500:0f:a3:39:e1:c0
+## 528    8    8    0        135 00:14:bf:3b:c7:c6  88013500:14:bf:3b:c7:c6
+## 529    8    8    0        135 00:0f:a3:39:dd:cd  88013500:0f:a3:39:dd:cd
+## 530    8    8    0        135 00:14:bf:b1:97:8a  88013500:14:bf:b1:97:8a
+## 531    8    8    0        135 00:14:bf:b1:97:90  88013500:14:bf:b1:97:90
+## 532    8    8    0        135 00:14:bf:b1:97:81  88013500:14:bf:b1:97:81
+## 533    8    8    0        180 00:14:bf:b1:97:8d  88018000:14:bf:b1:97:8d
+## 534    8    8    0        180 00:14:bf:b1:97:8a  88018000:14:bf:b1:97:8a
+## 535    8    8    0        180 00:0f:a3:39:e1:c0  88018000:0f:a3:39:e1:c0
+## 536    8    8    0        180 00:14:bf:3b:c7:c6  88018000:14:bf:3b:c7:c6
+## 537    8    8    0        180 00:14:bf:b1:97:81  88018000:14:bf:b1:97:81
+## 538    8    8    0        180 00:0f:a3:39:dd:cd  88018000:0f:a3:39:dd:cd
+## 539    8    8    0        180 00:14:bf:b1:97:90  88018000:14:bf:b1:97:90
+## 540    8    8    0        225 00:0f:a3:39:e1:c0  88022500:0f:a3:39:e1:c0
+## 541    8    8    0        225 00:14:bf:b1:97:8d  88022500:14:bf:b1:97:8d
+## 542    8    8    0        225 00:14:bf:b1:97:90  88022500:14:bf:b1:97:90
+## 543    8    8    0        225 00:14:bf:3b:c7:c6  88022500:14:bf:3b:c7:c6
+## 544    8    8    0        225 00:14:bf:b1:97:8a  88022500:14:bf:b1:97:8a
+## 545    8    8    0        225 00:0f:a3:39:dd:cd  88022500:0f:a3:39:dd:cd
+## 546    8    8    0        225 00:14:bf:b1:97:81  88022500:14:bf:b1:97:81
+## 547    8    8    0        270 00:0f:a3:39:e1:c0  88027000:0f:a3:39:e1:c0
+## 548    8    8    0        270 00:14:bf:3b:c7:c6  88027000:14:bf:3b:c7:c6
+## 549    8    8    0        270 00:14:bf:b1:97:8d  88027000:14:bf:b1:97:8d
+## 550    8    8    0        270 00:14:bf:b1:97:8a  88027000:14:bf:b1:97:8a
+## 551    8    8    0        270 00:14:bf:b1:97:81  88027000:14:bf:b1:97:81
+## 552    8    8    0        270 00:14:bf:b1:97:90  88027000:14:bf:b1:97:90
+## 553    8    8    0        270 00:0f:a3:39:dd:cd  88027000:0f:a3:39:dd:cd
+## 554    8    8    0        315 00:0f:a3:39:e1:c0  88031500:0f:a3:39:e1:c0
+## 555    8    8    0        315 00:0f:a3:39:dd:cd  88031500:0f:a3:39:dd:cd
+## 556    8    8    0        315 00:14:bf:b1:97:8a  88031500:14:bf:b1:97:8a
+## 557    8    8    0        315 00:14:bf:3b:c7:c6  88031500:14:bf:3b:c7:c6
+## 558    8    8    0        315 00:14:bf:b1:97:8d  88031500:14:bf:b1:97:8d
+## 559    8    8    0        315 00:14:bf:b1:97:90  88031500:14:bf:b1:97:90
+## 560    8    8    0        315 00:14:bf:b1:97:81  88031500:14:bf:b1:97:81
+## 561   19    3    0          0 00:14:bf:3b:c7:c6   1930000:14:bf:3b:c7:c6
+## 562   19    3    0          0 00:14:bf:b1:97:8d   1930000:14:bf:b1:97:8d
+## 563   19    3    0          0 00:14:bf:b1:97:81   1930000:14:bf:b1:97:81
+## 564   19    3    0          0 00:0f:a3:39:e1:c0   1930000:0f:a3:39:e1:c0
+## 565   19    3    0          0 00:14:bf:b1:97:8a   1930000:14:bf:b1:97:8a
+## 566   19    3    0          0 00:14:bf:b1:97:90   1930000:14:bf:b1:97:90
+## 567   19    3    0          0 00:0f:a3:39:dd:cd   1930000:0f:a3:39:dd:cd
+## 568   19    3    0         45 00:14:bf:b1:97:8d  19304500:14:bf:b1:97:8d
+## 569   19    3    0         45 00:14:bf:3b:c7:c6  19304500:14:bf:3b:c7:c6
+## 570   19    3    0         45 00:0f:a3:39:e1:c0  19304500:0f:a3:39:e1:c0
+## 571   19    3    0         45 00:14:bf:b1:97:8a  19304500:14:bf:b1:97:8a
+## 572   19    3    0         45 00:14:bf:b1:97:90  19304500:14:bf:b1:97:90
+## 573   19    3    0         45 00:0f:a3:39:dd:cd  19304500:0f:a3:39:dd:cd
+## 574   19    3    0         45 00:14:bf:b1:97:81  19304500:14:bf:b1:97:81
+## 575   19    3    0         90 00:14:bf:b1:97:8d  19309000:14:bf:b1:97:8d
+## 576   19    3    0         90 00:14:bf:b1:97:8a  19309000:14:bf:b1:97:8a
+## 577   19    3    0         90 00:0f:a3:39:e1:c0  19309000:0f:a3:39:e1:c0
+## 578   19    3    0         90 00:14:bf:b1:97:90  19309000:14:bf:b1:97:90
+## 579   19    3    0         90 00:0f:a3:39:dd:cd  19309000:0f:a3:39:dd:cd
+## 580   19    3    0         90 00:14:bf:3b:c7:c6  19309000:14:bf:3b:c7:c6
+## 581   19    3    0         90 00:14:bf:b1:97:81  19309000:14:bf:b1:97:81
+## 582   19    3    0        135 00:14:bf:b1:97:8d 193013500:14:bf:b1:97:8d
+## 583   19    3    0        135 00:14:bf:b1:97:81 193013500:14:bf:b1:97:81
+## 584   19    3    0        135 00:0f:a3:39:e1:c0 193013500:0f:a3:39:e1:c0
+## 585   19    3    0        135 00:14:bf:b1:97:90 193013500:14:bf:b1:97:90
+## 586   19    3    0        135 00:0f:a3:39:dd:cd 193013500:0f:a3:39:dd:cd
+## 587   19    3    0        135 00:14:bf:b1:97:8a 193013500:14:bf:b1:97:8a
+## 588   19    3    0        135 00:14:bf:3b:c7:c6 193013500:14:bf:3b:c7:c6
+## 589   19    3    0        180 00:14:bf:b1:97:81 193018000:14:bf:b1:97:81
+## 590   19    3    0        180 00:14:bf:b1:97:8d 193018000:14:bf:b1:97:8d
+## 591   19    3    0        180 00:0f:a3:39:e1:c0 193018000:0f:a3:39:e1:c0
+## 592   19    3    0        180 00:14:bf:b1:97:8a 193018000:14:bf:b1:97:8a
+## 593   19    3    0        180 00:14:bf:b1:97:90 193018000:14:bf:b1:97:90
+## 594   19    3    0        180 00:0f:a3:39:dd:cd 193018000:0f:a3:39:dd:cd
+## 595   19    3    0        180 00:14:bf:3b:c7:c6 193018000:14:bf:3b:c7:c6
+## 596   19    3    0        225 00:14:bf:b1:97:8d 193022500:14:bf:b1:97:8d
+## 597   19    3    0        225 00:14:bf:3b:c7:c6 193022500:14:bf:3b:c7:c6
+## 598   19    3    0        225 00:14:bf:b1:97:90 193022500:14:bf:b1:97:90
+## 599   19    3    0        225 00:0f:a3:39:dd:cd 193022500:0f:a3:39:dd:cd
+## 600   19    3    0        225 00:0f:a3:39:e1:c0 193022500:0f:a3:39:e1:c0
+## 601   19    3    0        225 00:14:bf:b1:97:8a 193022500:14:bf:b1:97:8a
+## 602   19    3    0        225 00:14:bf:b1:97:81 193022500:14:bf:b1:97:81
+## 603   19    3    0        270 00:14:bf:b1:97:8d 193027000:14:bf:b1:97:8d
+## 604   19    3    0        270 00:0f:a3:39:e1:c0 193027000:0f:a3:39:e1:c0
+## 605   19    3    0        270 00:14:bf:b1:97:81 193027000:14:bf:b1:97:81
+## 606   19    3    0        270 00:14:bf:b1:97:8a 193027000:14:bf:b1:97:8a
+## 607   19    3    0        270 00:14:bf:3b:c7:c6 193027000:14:bf:3b:c7:c6
+## 608   19    3    0        270 00:14:bf:b1:97:90 193027000:14:bf:b1:97:90
+## 609   19    3    0        270 00:0f:a3:39:dd:cd 193027000:0f:a3:39:dd:cd
+## 610   19    3    0        315 00:0f:a3:39:e1:c0 193031500:0f:a3:39:e1:c0
+## 611   19    3    0        315 00:14:bf:b1:97:81 193031500:14:bf:b1:97:81
+## 612   19    3    0        315 00:14:bf:3b:c7:c6 193031500:14:bf:3b:c7:c6
+## 613   19    3    0        315 00:14:bf:b1:97:8a 193031500:14:bf:b1:97:8a
+## 614   19    3    0        315 00:0f:a3:39:dd:cd 193031500:0f:a3:39:dd:cd
+## 615   19    3    0        315 00:14:bf:b1:97:8d 193031500:14:bf:b1:97:8d
+## 616   19    3    0        315 00:14:bf:b1:97:90 193031500:14:bf:b1:97:90
+## 617   22    3    0          0 00:14:bf:b1:97:81   2230000:14:bf:b1:97:81
+## 618   22    3    0          0 00:14:bf:3b:c7:c6   2230000:14:bf:3b:c7:c6
+## 619   22    3    0          0 00:0f:a3:39:e1:c0   2230000:0f:a3:39:e1:c0
+## 620   22    3    0          0 00:14:bf:b1:97:8a   2230000:14:bf:b1:97:8a
+## 621   22    3    0          0 00:0f:a3:39:dd:cd   2230000:0f:a3:39:dd:cd
+## 622   22    3    0          0 00:14:bf:b1:97:8d   2230000:14:bf:b1:97:8d
+## 623   22    3    0          0 00:14:bf:b1:97:90   2230000:14:bf:b1:97:90
+## 624   22    3    0         45 00:14:bf:b1:97:8d  22304500:14:bf:b1:97:8d
+## 625   22    3    0         45 00:14:bf:b1:97:81  22304500:14:bf:b1:97:81
+## 626   22    3    0         45 00:14:bf:b1:97:8a  22304500:14:bf:b1:97:8a
+## 627   22    3    0         45 00:0f:a3:39:e1:c0  22304500:0f:a3:39:e1:c0
+## 628   22    3    0         45 00:14:bf:b1:97:90  22304500:14:bf:b1:97:90
+## 629   22    3    0         45 00:0f:a3:39:dd:cd  22304500:0f:a3:39:dd:cd
+## 630   22    3    0         45 00:14:bf:3b:c7:c6  22304500:14:bf:3b:c7:c6
+## 631   22    3    0         90 00:14:bf:b1:97:81  22309000:14:bf:b1:97:81
+## 632   22    3    0         90 00:0f:a3:39:e1:c0  22309000:0f:a3:39:e1:c0
+## 633   22    3    0         90 00:14:bf:b1:97:8d  22309000:14:bf:b1:97:8d
+## 634   22    3    0         90 00:0f:a3:39:dd:cd  22309000:0f:a3:39:dd:cd
+## 635   22    3    0         90 00:14:bf:3b:c7:c6  22309000:14:bf:3b:c7:c6
+## 636   22    3    0         90 00:14:bf:b1:97:90  22309000:14:bf:b1:97:90
+## 637   22    3    0         90 00:14:bf:b1:97:8a  22309000:14:bf:b1:97:8a
+## 638   22    3    0        135 00:14:bf:b1:97:81 223013500:14:bf:b1:97:81
+## 639   22    3    0        135 00:14:bf:b1:97:8d 223013500:14:bf:b1:97:8d
+## 640   22    3    0        135 00:0f:a3:39:e1:c0 223013500:0f:a3:39:e1:c0
+## 641   22    3    0        135 00:14:bf:b1:97:8a 223013500:14:bf:b1:97:8a
+## 642   22    3    0        135 00:14:bf:b1:97:90 223013500:14:bf:b1:97:90
+## 643   22    3    0        135 00:0f:a3:39:dd:cd 223013500:0f:a3:39:dd:cd
+## 644   22    3    0        135 00:14:bf:3b:c7:c6 223013500:14:bf:3b:c7:c6
+## 645   22    3    0        180 00:14:bf:b1:97:81 223018000:14:bf:b1:97:81
+## 646   22    3    0        180 00:14:bf:b1:97:8a 223018000:14:bf:b1:97:8a
+## 647   22    3    0        180 00:0f:a3:39:e1:c0 223018000:0f:a3:39:e1:c0
+## 648   22    3    0        180 00:14:bf:3b:c7:c6 223018000:14:bf:3b:c7:c6
+## 649   22    3    0        180 00:14:bf:b1:97:90 223018000:14:bf:b1:97:90
+## 650   22    3    0        180 00:0f:a3:39:dd:cd 223018000:0f:a3:39:dd:cd
+## 651   22    3    0        180 00:14:bf:b1:97:8d 223018000:14:bf:b1:97:8d
+## 652   22    3    0        225 00:14:bf:b1:97:81 223022500:14:bf:b1:97:81
+## 653   22    3    0        225 00:14:bf:b1:97:8d 223022500:14:bf:b1:97:8d
+## 654   22    3    0        225 00:0f:a3:39:e1:c0 223022500:0f:a3:39:e1:c0
+## 655   22    3    0        225 00:0f:a3:39:dd:cd 223022500:0f:a3:39:dd:cd
+## 656   22    3    0        225 00:14:bf:b1:97:8a 223022500:14:bf:b1:97:8a
+## 657   22    3    0        225 00:14:bf:b1:97:90 223022500:14:bf:b1:97:90
+## 658   22    3    0        225 00:14:bf:3b:c7:c6 223022500:14:bf:3b:c7:c6
+## 659   22    3    0        270 00:14:bf:b1:97:8d 223027000:14:bf:b1:97:8d
+## 660   22    3    0        270 00:14:bf:b1:97:8a 223027000:14:bf:b1:97:8a
+## 661   22    3    0        270 00:14:bf:b1:97:81 223027000:14:bf:b1:97:81
+## 662   22    3    0        270 00:0f:a3:39:e1:c0 223027000:0f:a3:39:e1:c0
+## 663   22    3    0        270 00:0f:a3:39:dd:cd 223027000:0f:a3:39:dd:cd
+## 664   22    3    0        270 00:14:bf:b1:97:90 223027000:14:bf:b1:97:90
+## 665   22    3    0        270 00:14:bf:3b:c7:c6 223027000:14:bf:3b:c7:c6
+## 666   22    3    0        315 00:14:bf:b1:97:81 223031500:14:bf:b1:97:81
+## 667   22    3    0        315 00:0f:a3:39:e1:c0 223031500:0f:a3:39:e1:c0
+## 668   22    3    0        315 00:14:bf:b1:97:8a 223031500:14:bf:b1:97:8a
+## 669   22    3    0        315 00:14:bf:b1:97:90 223031500:14:bf:b1:97:90
+## 670   22    3    0        315 00:0f:a3:39:dd:cd 223031500:0f:a3:39:dd:cd
+## 671   22    3    0        315 00:14:bf:3b:c7:c6 223031500:14:bf:3b:c7:c6
+## 672   22    3    0        315 00:14:bf:b1:97:8d 223031500:14:bf:b1:97:8d
+## 673   29    7    0          0 00:14:bf:b1:97:8d   2970000:14:bf:b1:97:8d
+## 674   29    7    0          0 00:14:bf:b1:97:81   2970000:14:bf:b1:97:81
+## 675   29    7    0          0 00:0f:a3:39:e1:c0   2970000:0f:a3:39:e1:c0
+## 676   29    7    0          0 00:14:bf:b1:97:8a   2970000:14:bf:b1:97:8a
+## 677   29    7    0          0 00:0f:a3:39:dd:cd   2970000:0f:a3:39:dd:cd
+## 678   29    7    0          0 00:14:bf:3b:c7:c6   2970000:14:bf:3b:c7:c6
+## 679   29    7    0          0 00:14:bf:b1:97:90   2970000:14:bf:b1:97:90
+## 680   29    7    0         45 00:14:bf:b1:97:8d  29704500:14:bf:b1:97:8d
+## 681   29    7    0         45 00:0f:a3:39:e1:c0  29704500:0f:a3:39:e1:c0
+## 682   29    7    0         45 00:14:bf:3b:c7:c6  29704500:14:bf:3b:c7:c6
+## 683   29    7    0         45 00:14:bf:b1:97:8a  29704500:14:bf:b1:97:8a
+## 684   29    7    0         45 00:14:bf:b1:97:81  29704500:14:bf:b1:97:81
+## 685   29    7    0         45 00:14:bf:b1:97:90  29704500:14:bf:b1:97:90
+## 686   29    7    0         45 00:0f:a3:39:dd:cd  29704500:0f:a3:39:dd:cd
+## 687   29    7    0         90 00:14:bf:b1:97:8d  29709000:14:bf:b1:97:8d
+## 688   29    7    0         90 00:14:bf:b1:97:81  29709000:14:bf:b1:97:81
+## 689   29    7    0         90 00:0f:a3:39:e1:c0  29709000:0f:a3:39:e1:c0
+## 690   29    7    0         90 00:14:bf:3b:c7:c6  29709000:14:bf:3b:c7:c6
+## 691   29    7    0         90 00:14:bf:b1:97:90  29709000:14:bf:b1:97:90
+## 692   29    7    0         90 00:0f:a3:39:dd:cd  29709000:0f:a3:39:dd:cd
+## 693   29    7    0         90 00:14:bf:b1:97:8a  29709000:14:bf:b1:97:8a
+## 694   29    7    0        135 00:14:bf:b1:97:8d 297013500:14:bf:b1:97:8d
+## 695   29    7    0        135 00:14:bf:b1:97:81 297013500:14:bf:b1:97:81
+## 696   29    7    0        135 00:14:bf:b1:97:8a 297013500:14:bf:b1:97:8a
+## 697   29    7    0        135 00:0f:a3:39:e1:c0 297013500:0f:a3:39:e1:c0
+## 698   29    7    0        135 00:14:bf:3b:c7:c6 297013500:14:bf:3b:c7:c6
+## 699   29    7    0        135 00:14:bf:b1:97:90 297013500:14:bf:b1:97:90
+## 700   29    7    0        135 00:0f:a3:39:dd:cd 297013500:0f:a3:39:dd:cd
+## 701   29    7    0        180 00:14:bf:b1:97:8d 297018000:14:bf:b1:97:8d
+## 702   29    7    0        180 00:0f:a3:39:e1:c0 297018000:0f:a3:39:e1:c0
+## 703   29    7    0        180 00:14:bf:b1:97:81 297018000:14:bf:b1:97:81
+## 704   29    7    0        180 00:14:bf:3b:c7:c6 297018000:14:bf:3b:c7:c6
+## 705   29    7    0        180 00:14:bf:b1:97:8a 297018000:14:bf:b1:97:8a
+## 706   29    7    0        180 00:0f:a3:39:dd:cd 297018000:0f:a3:39:dd:cd
+## 707   29    7    0        180 00:14:bf:b1:97:90 297018000:14:bf:b1:97:90
+## 708   29    7    0        225 00:14:bf:b1:97:8d 297022500:14:bf:b1:97:8d
+## 709   29    7    0        225 00:0f:a3:39:e1:c0 297022500:0f:a3:39:e1:c0
+## 710   29    7    0        225 00:14:bf:b1:97:8a 297022500:14:bf:b1:97:8a
+## 711   29    7    0        225 00:14:bf:b1:97:90 297022500:14:bf:b1:97:90
+## 712   29    7    0        225 00:0f:a3:39:dd:cd 297022500:0f:a3:39:dd:cd
+## 713   29    7    0        225 00:14:bf:b1:97:81 297022500:14:bf:b1:97:81
+## 714   29    7    0        225 00:14:bf:3b:c7:c6 297022500:14:bf:3b:c7:c6
+## 715   29    7    0        270 00:0f:a3:39:e1:c0 297027000:0f:a3:39:e1:c0
+## 716   29    7    0        270 00:14:bf:b1:97:8d 297027000:14:bf:b1:97:8d
+## 717   29    7    0        270 00:14:bf:b1:97:81 297027000:14:bf:b1:97:81
+## 718   29    7    0        270 00:14:bf:b1:97:8a 297027000:14:bf:b1:97:8a
+## 719   29    7    0        270 00:14:bf:3b:c7:c6 297027000:14:bf:3b:c7:c6
+## 720   29    7    0        270 00:0f:a3:39:dd:cd 297027000:0f:a3:39:dd:cd
+## 721   29    7    0        270 00:14:bf:b1:97:90 297027000:14:bf:b1:97:90
+## 722   29    7    0        315 00:14:bf:b1:97:8d 297031500:14:bf:b1:97:8d
+## 723   29    7    0        315 00:14:bf:b1:97:81 297031500:14:bf:b1:97:81
+## 724   29    7    0        315 00:0f:a3:39:e1:c0 297031500:0f:a3:39:e1:c0
+## 725   29    7    0        315 00:14:bf:3b:c7:c6 297031500:14:bf:3b:c7:c6
+## 726   29    7    0        315 00:14:bf:b1:97:8a 297031500:14:bf:b1:97:8a
+## 727   29    7    0        315 00:14:bf:b1:97:90 297031500:14:bf:b1:97:90
+## 728   29    7    0        315 00:0f:a3:39:dd:cd 297031500:0f:a3:39:dd:cd
+## 729   32    5    0          0 00:14:bf:b1:97:8d   3250000:14:bf:b1:97:8d
+## 730   32    5    0          0 00:14:bf:b1:97:81   3250000:14:bf:b1:97:81
+## 731   32    5    0          0 00:14:bf:3b:c7:c6   3250000:14:bf:3b:c7:c6
+## 732   32    5    0          0 00:0f:a3:39:e1:c0   3250000:0f:a3:39:e1:c0
+## 733   32    5    0          0 00:14:bf:b1:97:8a   3250000:14:bf:b1:97:8a
+## 734   32    5    0          0 00:14:bf:b1:97:90   3250000:14:bf:b1:97:90
+## 735   32    5    0          0 00:0f:a3:39:dd:cd   3250000:0f:a3:39:dd:cd
+## 736   32    5    0         45 00:14:bf:b1:97:81  32504500:14:bf:b1:97:81
+## 737   32    5    0         45 00:14:bf:3b:c7:c6  32504500:14:bf:3b:c7:c6
+## 738   32    5    0         45 00:14:bf:b1:97:8a  32504500:14:bf:b1:97:8a
+## 739   32    5    0         45 00:0f:a3:39:e1:c0  32504500:0f:a3:39:e1:c0
+## 740   32    5    0         45 00:14:bf:b1:97:90  32504500:14:bf:b1:97:90
+## 741   32    5    0         45 00:0f:a3:39:dd:cd  32504500:0f:a3:39:dd:cd
+## 742   32    5    0         45 00:14:bf:b1:97:8d  32504500:14:bf:b1:97:8d
+## 743   32    5    0         90 00:14:bf:b1:97:8d  32509000:14:bf:b1:97:8d
+## 744   32    5    0         90 00:14:bf:b1:97:81  32509000:14:bf:b1:97:81
+## 745   32    5    0         90 00:0f:a3:39:e1:c0  32509000:0f:a3:39:e1:c0
+## 746   32    5    0         90 00:14:bf:b1:97:8a  32509000:14:bf:b1:97:8a
+## 747   32    5    0         90 00:14:bf:b1:97:90  32509000:14:bf:b1:97:90
+## 748   32    5    0         90 00:0f:a3:39:dd:cd  32509000:0f:a3:39:dd:cd
+## 749   32    5    0         90 00:14:bf:3b:c7:c6  32509000:14:bf:3b:c7:c6
+## 750   32    5    0        135 00:14:bf:b1:97:81 325013500:14:bf:b1:97:81
+## 751   32    5    0        135 00:14:bf:b1:97:8d 325013500:14:bf:b1:97:8d
+## 752   32    5    0        135 00:0f:a3:39:e1:c0 325013500:0f:a3:39:e1:c0
+## 753   32    5    0        135 00:14:bf:3b:c7:c6 325013500:14:bf:3b:c7:c6
+## 754   32    5    0        135 00:14:bf:b1:97:8a 325013500:14:bf:b1:97:8a
+## 755   32    5    0        135 00:14:bf:b1:97:90 325013500:14:bf:b1:97:90
+## 756   32    5    0        135 00:0f:a3:39:dd:cd 325013500:0f:a3:39:dd:cd
+## 757   32    5    0        180 00:14:bf:b1:97:81 325018000:14:bf:b1:97:81
+## 758   32    5    0        180 00:14:bf:b1:97:8d 325018000:14:bf:b1:97:8d
+## 759   32    5    0        180 00:14:bf:b1:97:8a 325018000:14:bf:b1:97:8a
+## 760   32    5    0        180 00:0f:a3:39:e1:c0 325018000:0f:a3:39:e1:c0
+## 761   32    5    0        180 00:14:bf:3b:c7:c6 325018000:14:bf:3b:c7:c6
+## 762   32    5    0        180 00:0f:a3:39:dd:cd 325018000:0f:a3:39:dd:cd
+## 763   32    5    0        180 00:14:bf:b1:97:90 325018000:14:bf:b1:97:90
+## 764   32    5    0        225 00:14:bf:b1:97:8d 325022500:14:bf:b1:97:8d
+## 765   32    5    0        225 00:14:bf:b1:97:81 325022500:14:bf:b1:97:81
+## 766   32    5    0        225 00:14:bf:3b:c7:c6 325022500:14:bf:3b:c7:c6
+## 767   32    5    0        225 00:0f:a3:39:e1:c0 325022500:0f:a3:39:e1:c0
+## 768   32    5    0        225 00:14:bf:b1:97:8a 325022500:14:bf:b1:97:8a
+## 769   32    5    0        225 00:14:bf:b1:97:90 325022500:14:bf:b1:97:90
+## 770   32    5    0        225 00:0f:a3:39:dd:cd 325022500:0f:a3:39:dd:cd
+## 771   32    5    0        270 00:14:bf:b1:97:81 325027000:14:bf:b1:97:81
+## 772   32    5    0        270 00:14:bf:b1:97:8d 325027000:14:bf:b1:97:8d
+## 773   32    5    0        270 00:0f:a3:39:e1:c0 325027000:0f:a3:39:e1:c0
+## 774   32    5    0        270 00:14:bf:b1:97:8a 325027000:14:bf:b1:97:8a
+## 775   32    5    0        270 00:14:bf:3b:c7:c6 325027000:14:bf:3b:c7:c6
+## 776   32    5    0        270 00:0f:a3:39:dd:cd 325027000:0f:a3:39:dd:cd
+## 777   32    5    0        270 00:14:bf:b1:97:90 325027000:14:bf:b1:97:90
+## 778   32    5    0        315 00:14:bf:b1:97:81 325031500:14:bf:b1:97:81
+## 779   32    5    0        315 00:14:bf:b1:97:8d 325031500:14:bf:b1:97:8d
+## 780   32    5    0        315 00:0f:a3:39:e1:c0 325031500:0f:a3:39:e1:c0
+## 781   32    5    0        315 00:14:bf:b1:97:8a 325031500:14:bf:b1:97:8a
+## 782   32    5    0        315 00:14:bf:3b:c7:c6 325031500:14:bf:3b:c7:c6
+## 783   32    5    0        315 00:0f:a3:39:dd:cd 325031500:0f:a3:39:dd:cd
+## 784   32    5    0        315 00:14:bf:b1:97:90 325031500:14:bf:b1:97:90
+## 785   32    4    0          0 00:14:bf:b1:97:8d   3240000:14:bf:b1:97:8d
+## 786   32    4    0          0 00:14:bf:b1:97:81   3240000:14:bf:b1:97:81
+## 787   32    4    0          0 00:14:bf:b1:97:8a   3240000:14:bf:b1:97:8a
+## 788   32    4    0          0 00:0f:a3:39:e1:c0   3240000:0f:a3:39:e1:c0
+## 789   32    4    0          0 00:0f:a3:39:dd:cd   3240000:0f:a3:39:dd:cd
+## 790   32    4    0          0 00:14:bf:3b:c7:c6   3240000:14:bf:3b:c7:c6
+## 791   32    4    0          0 00:14:bf:b1:97:90   3240000:14:bf:b1:97:90
+## 792   32    4    0         45 00:14:bf:b1:97:8d  32404500:14:bf:b1:97:8d
+## 793   32    4    0         45 00:14:bf:b1:97:81  32404500:14:bf:b1:97:81
+## 794   32    4    0         45 00:0f:a3:39:e1:c0  32404500:0f:a3:39:e1:c0
+## 795   32    4    0         45 00:0f:a3:39:dd:cd  32404500:0f:a3:39:dd:cd
+## 796   32    4    0         45 00:14:bf:b1:97:8a  32404500:14:bf:b1:97:8a
+## 797   32    4    0         45 00:14:bf:b1:97:90  32404500:14:bf:b1:97:90
+## 798   32    4    0         45 00:14:bf:3b:c7:c6  32404500:14:bf:3b:c7:c6
+## 799   32    4    0         90 00:0f:a3:39:e1:c0  32409000:0f:a3:39:e1:c0
+## 800   32    4    0         90 00:14:bf:b1:97:90  32409000:14:bf:b1:97:90
+## 801   32    4    0         90 00:14:bf:b1:97:8d  32409000:14:bf:b1:97:8d
+## 802   32    4    0         90 00:14:bf:3b:c7:c6  32409000:14:bf:3b:c7:c6
+## 803   32    4    0         90 00:14:bf:b1:97:81  32409000:14:bf:b1:97:81
+## 804   32    4    0         90 00:0f:a3:39:dd:cd  32409000:0f:a3:39:dd:cd
+## 805   32    4    0         90 00:14:bf:b1:97:8a  32409000:14:bf:b1:97:8a
+## 806   32    4    0        135 00:14:bf:b1:97:8d 324013500:14:bf:b1:97:8d
+## 807   32    4    0        135 00:14:bf:b1:97:81 324013500:14:bf:b1:97:81
+## 808   32    4    0        135 00:0f:a3:39:e1:c0 324013500:0f:a3:39:e1:c0
+## 809   32    4    0        135 00:14:bf:b1:97:8a 324013500:14:bf:b1:97:8a
+## 810   32    4    0        135 00:14:bf:b1:97:90 324013500:14:bf:b1:97:90
+## 811   32    4    0        135 00:0f:a3:39:dd:cd 324013500:0f:a3:39:dd:cd
+## 812   32    4    0        135 00:14:bf:3b:c7:c6 324013500:14:bf:3b:c7:c6
+## 813   32    4    0        180 00:14:bf:b1:97:8d 324018000:14:bf:b1:97:8d
+## 814   32    4    0        180 00:0f:a3:39:e1:c0 324018000:0f:a3:39:e1:c0
+## 815   32    4    0        180 00:14:bf:3b:c7:c6 324018000:14:bf:3b:c7:c6
+## 816   32    4    0        180 00:14:bf:b1:97:8a 324018000:14:bf:b1:97:8a
+## 817   32    4    0        180 00:0f:a3:39:dd:cd 324018000:0f:a3:39:dd:cd
+## 818   32    4    0        180 00:14:bf:b1:97:81 324018000:14:bf:b1:97:81
+## 819   32    4    0        180 00:14:bf:b1:97:90 324018000:14:bf:b1:97:90
+## 820   32    4    0        225 00:14:bf:b1:97:81 324022500:14:bf:b1:97:81
+## 821   32    4    0        225 00:0f:a3:39:e1:c0 324022500:0f:a3:39:e1:c0
+## 822   32    4    0        225 00:14:bf:b1:97:8a 324022500:14:bf:b1:97:8a
+## 823   32    4    0        225 00:14:bf:3b:c7:c6 324022500:14:bf:3b:c7:c6
+## 824   32    4    0        225 00:14:bf:b1:97:90 324022500:14:bf:b1:97:90
+## 825   32    4    0        225 00:0f:a3:39:dd:cd 324022500:0f:a3:39:dd:cd
+## 826   32    4    0        225 00:14:bf:b1:97:8d 324022500:14:bf:b1:97:8d
+## 827   32    4    0        270 00:14:bf:b1:97:81 324027000:14:bf:b1:97:81
+## 828   32    4    0        270 00:14:bf:b1:97:8d 324027000:14:bf:b1:97:8d
+## 829   32    4    0        270 00:0f:a3:39:e1:c0 324027000:0f:a3:39:e1:c0
+## 830   32    4    0        270 00:14:bf:b1:97:8a 324027000:14:bf:b1:97:8a
+## 831   32    4    0        270 00:14:bf:b1:97:90 324027000:14:bf:b1:97:90
+## 832   32    4    0        270 00:0f:a3:39:dd:cd 324027000:0f:a3:39:dd:cd
+## 833   32    4    0        270 00:14:bf:3b:c7:c6 324027000:14:bf:3b:c7:c6
+## 834   32    4    0        315 00:14:bf:b1:97:81 324031500:14:bf:b1:97:81
+## 835   32    4    0        315 00:14:bf:b1:97:8a 324031500:14:bf:b1:97:8a
+## 836   32    4    0        315 00:0f:a3:39:e1:c0 324031500:0f:a3:39:e1:c0
+## 837   32    4    0        315 00:14:bf:3b:c7:c6 324031500:14:bf:3b:c7:c6
+## 838   32    4    0        315 00:14:bf:b1:97:90 324031500:14:bf:b1:97:90
+## 839   32    4    0        315 00:0f:a3:39:dd:cd 324031500:0f:a3:39:dd:cd
+## 840   32    4    0        315 00:14:bf:b1:97:8d 324031500:14:bf:b1:97:8d
+##     avg_signal sd_signal
+## 1    -61.33234  11.10062
+## 2    -61.33234  11.10062
+## 3    -61.33234  11.10062
+## 4    -61.33234  11.10062
+## 5    -61.33234  11.10062
+## 6    -61.33234  11.10062
+## 7    -61.33234  11.10062
+## 8    -61.33234  11.10062
+## 9    -61.33234  11.10062
+## 10   -61.33234  11.10062
+## 11   -61.33234  11.10062
+## 12   -61.33234  11.10062
+## 13   -61.33234  11.10062
+## 14   -61.33234  11.10062
+## 15   -61.33234  11.10062
+## 16   -61.33234  11.10062
+## 17   -61.33234  11.10062
+## 18   -61.33234  11.10062
+## 19   -61.33234  11.10062
+## 20   -61.33234  11.10062
+## 21   -61.33234  11.10062
+## 22   -61.33234  11.10062
+## 23   -61.33234  11.10062
+## 24   -61.33234  11.10062
+## 25   -61.33234  11.10062
+## 26   -61.33234  11.10062
+## 27   -61.33234  11.10062
+## 28   -61.33234  11.10062
+## 29   -61.33234  11.10062
+## 30   -61.33234  11.10062
+## 31   -61.33234  11.10062
+## 32   -61.33234  11.10062
+## 33   -61.33234  11.10062
+## 34   -61.33234  11.10062
+## 35   -61.33234  11.10062
+## 36   -61.33234  11.10062
+## 37   -61.33234  11.10062
+## 38   -61.33234  11.10062
+## 39   -61.33234  11.10062
+## 40   -61.33234  11.10062
+## 41   -61.33234  11.10062
+## 42   -61.33234  11.10062
+## 43   -61.33234  11.10062
+## 44   -61.33234  11.10062
+## 45   -61.33234  11.10062
+## 46   -61.33234  11.10062
+## 47   -61.33234  11.10062
+## 48   -61.33234  11.10062
+## 49   -61.33234  11.10062
+## 50   -61.33234  11.10062
+## 51   -61.33234  11.10062
+## 52   -61.33234  11.10062
+## 53   -61.33234  11.10062
+## 54   -61.33234  11.10062
+## 55   -61.33234  11.10062
+## 56   -61.33234  11.10062
+## 57   -61.33234  11.10062
+## 58   -61.33234  11.10062
+## 59   -61.33234  11.10062
+## 60   -61.33234  11.10062
+## 61   -61.33234  11.10062
+## 62   -61.33234  11.10062
+## 63   -61.33234  11.10062
+## 64   -61.33234  11.10062
+## 65   -61.33234  11.10062
+## 66   -61.33234  11.10062
+## 67   -61.33234  11.10062
+## 68   -61.33234  11.10062
+## 69   -61.33234  11.10062
+## 70   -61.33234  11.10062
+## 71   -61.33234  11.10062
+## 72   -61.33234  11.10062
+## 73   -61.33234  11.10062
+## 74   -61.33234  11.10062
+## 75   -61.33234  11.10062
+## 76   -61.33234  11.10062
+## 77   -61.33234  11.10062
+## 78   -61.33234  11.10062
+## 79   -61.33234  11.10062
+## 80   -61.33234  11.10062
+## 81   -61.33234  11.10062
+## 82   -61.33234  11.10062
+## 83   -61.33234  11.10062
+## 84   -61.33234  11.10062
+## 85   -61.33234  11.10062
+## 86   -61.33234  11.10062
+## 87   -61.33234  11.10062
+## 88   -61.33234  11.10062
+## 89   -61.33234  11.10062
+## 90   -61.33234  11.10062
+## 91   -61.33234  11.10062
+## 92   -61.33234  11.10062
+## 93   -61.33234  11.10062
+## 94   -61.33234  11.10062
+## 95   -61.33234  11.10062
+## 96   -61.33234  11.10062
+## 97   -61.33234  11.10062
+## 98   -61.33234  11.10062
+## 99   -61.33234  11.10062
+## 100  -61.33234  11.10062
+## 101  -61.33234  11.10062
+## 102  -61.33234  11.10062
+## 103  -61.33234  11.10062
+## 104  -61.33234  11.10062
+## 105  -61.33234  11.10062
+## 106  -61.33234  11.10062
+## 107  -61.33234  11.10062
+## 108  -61.33234  11.10062
+## 109  -61.33234  11.10062
+## 110  -61.33234  11.10062
+## 111  -61.33234  11.10062
+## 112  -61.33234  11.10062
+## 113  -61.33234  11.10062
+## 114  -61.33234  11.10062
+## 115  -61.33234  11.10062
+## 116  -61.33234  11.10062
+## 117  -61.33234  11.10062
+## 118  -61.33234  11.10062
+## 119  -61.33234  11.10062
+## 120  -61.33234  11.10062
+## 121  -61.33234  11.10062
+## 122  -61.33234  11.10062
+## 123  -61.33234  11.10062
+## 124  -61.33234  11.10062
+## 125  -61.33234  11.10062
+## 126  -61.33234  11.10062
+## 127  -61.33234  11.10062
+## 128  -61.33234  11.10062
+## 129  -61.33234  11.10062
+## 130  -61.33234  11.10062
+## 131  -61.33234  11.10062
+## 132  -61.33234  11.10062
+## 133  -61.33234  11.10062
+## 134  -61.33234  11.10062
+## 135  -61.33234  11.10062
+## 136  -61.33234  11.10062
+## 137  -61.33234  11.10062
+## 138  -61.33234  11.10062
+## 139  -61.33234  11.10062
+## 140  -61.33234  11.10062
+## 141  -61.33234  11.10062
+## 142  -61.33234  11.10062
+## 143  -61.33234  11.10062
+## 144  -61.33234  11.10062
+## 145  -61.33234  11.10062
+## 146  -61.33234  11.10062
+## 147  -61.33234  11.10062
+## 148  -61.33234  11.10062
+## 149  -61.33234  11.10062
+## 150  -61.33234  11.10062
+## 151  -61.33234  11.10062
+## 152  -61.33234  11.10062
+## 153  -61.33234  11.10062
+## 154  -61.33234  11.10062
+## 155  -61.33234  11.10062
+## 156  -61.33234  11.10062
+## 157  -61.33234  11.10062
+## 158  -61.33234  11.10062
+## 159  -61.33234  11.10062
+## 160  -61.33234  11.10062
+## 161  -61.33234  11.10062
+## 162  -61.33234  11.10062
+## 163  -61.33234  11.10062
+## 164  -61.33234  11.10062
+## 165  -61.33234  11.10062
+## 166  -61.33234  11.10062
+## 167  -61.33234  11.10062
+## 168  -61.33234  11.10062
+## 169  -61.33234  11.10062
+## 170  -61.33234  11.10062
+## 171  -61.33234  11.10062
+## 172  -61.33234  11.10062
+## 173  -61.33234  11.10062
+## 174  -61.33234  11.10062
+## 175  -61.33234  11.10062
+## 176  -61.33234  11.10062
+## 177  -61.33234  11.10062
+## 178  -61.33234  11.10062
+## 179  -61.33234  11.10062
+## 180  -61.33234  11.10062
+## 181  -61.33234  11.10062
+## 182  -61.33234  11.10062
+## 183  -61.33234  11.10062
+## 184  -61.33234  11.10062
+## 185  -61.33234  11.10062
+## 186  -61.33234  11.10062
+## 187  -61.33234  11.10062
+## 188  -61.33234  11.10062
+## 189  -61.33234  11.10062
+## 190  -61.33234  11.10062
+## 191  -61.33234  11.10062
+## 192  -61.33234  11.10062
+## 193  -61.33234  11.10062
+## 194  -61.33234  11.10062
+## 195  -61.33234  11.10062
+## 196  -61.33234  11.10062
+## 197  -61.33234  11.10062
+## 198  -61.33234  11.10062
+## 199  -61.33234  11.10062
+## 200  -61.33234  11.10062
+## 201  -61.33234  11.10062
+## 202  -61.33234  11.10062
+## 203  -61.33234  11.10062
+## 204  -61.33234  11.10062
+## 205  -61.33234  11.10062
+## 206  -61.33234  11.10062
+## 207  -61.33234  11.10062
+## 208  -61.33234  11.10062
+## 209  -61.33234  11.10062
+## 210  -61.33234  11.10062
+## 211  -61.33234  11.10062
+## 212  -61.33234  11.10062
+## 213  -61.33234  11.10062
+## 214  -61.33234  11.10062
+## 215  -61.33234  11.10062
+## 216  -61.33234  11.10062
+## 217  -61.33234  11.10062
+## 218  -61.33234  11.10062
+## 219  -61.33234  11.10062
+## 220  -61.33234  11.10062
+## 221  -61.33234  11.10062
+## 222  -61.33234  11.10062
+## 223  -61.33234  11.10062
+## 224  -61.33234  11.10062
+## 225  -61.33234  11.10062
+## 226  -61.33234  11.10062
+## 227  -61.33234  11.10062
+## 228  -61.33234  11.10062
+## 229  -61.33234  11.10062
+## 230  -61.33234  11.10062
+## 231  -61.33234  11.10062
+## 232  -61.33234  11.10062
+## 233  -61.33234  11.10062
+## 234  -61.33234  11.10062
+## 235  -61.33234  11.10062
+## 236  -61.33234  11.10062
+## 237  -61.33234  11.10062
+## 238  -61.33234  11.10062
+## 239  -61.33234  11.10062
+## 240  -61.33234  11.10062
+## 241  -61.33234  11.10062
+## 242  -61.33234  11.10062
+## 243  -61.33234  11.10062
+## 244  -61.33234  11.10062
+## 245  -61.33234  11.10062
+## 246  -61.33234  11.10062
+## 247  -61.33234  11.10062
+## 248  -61.33234  11.10062
+## 249  -61.33234  11.10062
+## 250  -61.33234  11.10062
+## 251  -61.33234  11.10062
+## 252  -61.33234  11.10062
+## 253  -61.33234  11.10062
+## 254  -61.33234  11.10062
+## 255  -61.33234  11.10062
+## 256  -61.33234  11.10062
+## 257  -61.33234  11.10062
+## 258  -61.33234  11.10062
+## 259  -61.33234  11.10062
+## 260  -61.33234  11.10062
+## 261  -61.33234  11.10062
+## 262  -61.33234  11.10062
+## 263  -61.33234  11.10062
+## 264  -61.33234  11.10062
+## 265  -61.33234  11.10062
+## 266  -61.33234  11.10062
+## 267  -61.33234  11.10062
+## 268  -61.33234  11.10062
+## 269  -61.33234  11.10062
+## 270  -61.33234  11.10062
+## 271  -61.33234  11.10062
+## 272  -61.33234  11.10062
+## 273  -61.33234  11.10062
+## 274  -61.33234  11.10062
+## 275  -61.33234  11.10062
+## 276  -61.33234  11.10062
+## 277  -61.33234  11.10062
+## 278  -61.33234  11.10062
+## 279  -61.33234  11.10062
+## 280  -61.33234  11.10062
+## 281  -61.33234  11.10062
+## 282  -61.33234  11.10062
+## 283  -61.33234  11.10062
+## 284  -61.33234  11.10062
+## 285  -61.33234  11.10062
+## 286  -61.33234  11.10062
+## 287  -61.33234  11.10062
+## 288  -61.33234  11.10062
+## 289  -61.33234  11.10062
+## 290  -61.33234  11.10062
+## 291  -61.33234  11.10062
+## 292  -61.33234  11.10062
+## 293  -61.33234  11.10062
+## 294  -61.33234  11.10062
+## 295  -61.33234  11.10062
+## 296  -61.33234  11.10062
+## 297  -61.33234  11.10062
+## 298  -61.33234  11.10062
+## 299  -61.33234  11.10062
+## 300  -61.33234  11.10062
+## 301  -61.33234  11.10062
+## 302  -61.33234  11.10062
+## 303  -61.33234  11.10062
+## 304  -61.33234  11.10062
+## 305  -61.33234  11.10062
+## 306  -61.33234  11.10062
+## 307  -61.33234  11.10062
+## 308  -61.33234  11.10062
+## 309  -61.33234  11.10062
+## 310  -61.33234  11.10062
+## 311  -61.33234  11.10062
+## 312  -61.33234  11.10062
+## 313  -61.33234  11.10062
+## 314  -61.33234  11.10062
+## 315  -61.33234  11.10062
+## 316  -61.33234  11.10062
+## 317  -61.33234  11.10062
+## 318  -61.33234  11.10062
+## 319  -61.33234  11.10062
+## 320  -61.33234  11.10062
+## 321  -61.33234  11.10062
+## 322  -61.33234  11.10062
+## 323  -61.33234  11.10062
+## 324  -61.33234  11.10062
+## 325  -61.33234  11.10062
+## 326  -61.33234  11.10062
+## 327  -61.33234  11.10062
+## 328  -61.33234  11.10062
+## 329  -61.33234  11.10062
+## 330  -61.33234  11.10062
+## 331  -61.33234  11.10062
+## 332  -61.33234  11.10062
+## 333  -61.33234  11.10062
+## 334  -61.33234  11.10062
+## 335  -61.33234  11.10062
+## 336  -61.33234  11.10062
+## 337  -61.33234  11.10062
+## 338  -61.33234  11.10062
+## 339  -61.33234  11.10062
+## 340  -61.33234  11.10062
+## 341  -61.33234  11.10062
+## 342  -61.33234  11.10062
+## 343  -61.33234  11.10062
+## 344  -61.33234  11.10062
+## 345  -61.33234  11.10062
+## 346  -61.33234  11.10062
+## 347  -61.33234  11.10062
+## 348  -61.33234  11.10062
+## 349  -61.33234  11.10062
+## 350  -61.33234  11.10062
+## 351  -61.33234  11.10062
+## 352  -61.33234  11.10062
+## 353  -61.33234  11.10062
+## 354  -61.33234  11.10062
+## 355  -61.33234  11.10062
+## 356  -61.33234  11.10062
+## 357  -61.33234  11.10062
+## 358  -61.33234  11.10062
+## 359  -61.33234  11.10062
+## 360  -61.33234  11.10062
+## 361  -61.33234  11.10062
+## 362  -61.33234  11.10062
+## 363  -61.33234  11.10062
+## 364  -61.33234  11.10062
+## 365  -61.33234  11.10062
+## 366  -61.33234  11.10062
+## 367  -61.33234  11.10062
+## 368  -61.33234  11.10062
+## 369  -61.33234  11.10062
+## 370  -61.33234  11.10062
+## 371  -61.33234  11.10062
+## 372  -61.33234  11.10062
+## 373  -61.33234  11.10062
+## 374  -61.33234  11.10062
+## 375  -61.33234  11.10062
+## 376  -61.33234  11.10062
+## 377  -61.33234  11.10062
+## 378  -61.33234  11.10062
+## 379  -61.33234  11.10062
+## 380  -61.33234  11.10062
+## 381  -61.33234  11.10062
+## 382  -61.33234  11.10062
+## 383  -61.33234  11.10062
+## 384  -61.33234  11.10062
+## 385  -61.33234  11.10062
+## 386  -61.33234  11.10062
+## 387  -61.33234  11.10062
+## 388  -61.33234  11.10062
+## 389  -61.33234  11.10062
+## 390  -61.33234  11.10062
+## 391  -61.33234  11.10062
+## 392  -61.33234  11.10062
+## 393  -61.33234  11.10062
+## 394  -61.33234  11.10062
+## 395  -61.33234  11.10062
+## 396  -61.33234  11.10062
+## 397  -61.33234  11.10062
+## 398  -61.33234  11.10062
+## 399  -61.33234  11.10062
+## 400  -61.33234  11.10062
+## 401  -61.33234  11.10062
+## 402  -61.33234  11.10062
+## 403  -61.33234  11.10062
+## 404  -61.33234  11.10062
+## 405  -61.33234  11.10062
+## 406  -61.33234  11.10062
+## 407  -61.33234  11.10062
+## 408  -61.33234  11.10062
+## 409  -61.33234  11.10062
+## 410  -61.33234  11.10062
+## 411  -61.33234  11.10062
+## 412  -61.33234  11.10062
+## 413  -61.33234  11.10062
+## 414  -61.33234  11.10062
+## 415  -61.33234  11.10062
+## 416  -61.33234  11.10062
+## 417  -61.33234  11.10062
+## 418  -61.33234  11.10062
+## 419  -61.33234  11.10062
+## 420  -61.33234  11.10062
+## 421  -61.33234  11.10062
+## 422  -61.33234  11.10062
+## 423  -61.33234  11.10062
+## 424  -61.33234  11.10062
+## 425  -61.33234  11.10062
+## 426  -61.33234  11.10062
+## 427  -61.33234  11.10062
+## 428  -61.33234  11.10062
+## 429  -61.33234  11.10062
+## 430  -61.33234  11.10062
+## 431  -61.33234  11.10062
+## 432  -61.33234  11.10062
+## 433  -61.33234  11.10062
+## 434  -61.33234  11.10062
+## 435  -61.33234  11.10062
+## 436  -61.33234  11.10062
+## 437  -61.33234  11.10062
+## 438  -61.33234  11.10062
+## 439  -61.33234  11.10062
+## 440  -61.33234  11.10062
+## 441  -61.33234  11.10062
+## 442  -61.33234  11.10062
+## 443  -61.33234  11.10062
+## 444  -61.33234  11.10062
+## 445  -61.33234  11.10062
+## 446  -61.33234  11.10062
+## 447  -61.33234  11.10062
+## 448  -61.33234  11.10062
+## 449  -61.33234  11.10062
+## 450  -61.33234  11.10062
+## 451  -61.33234  11.10062
+## 452  -61.33234  11.10062
+## 453  -61.33234  11.10062
+## 454  -61.33234  11.10062
+## 455  -61.33234  11.10062
+## 456  -61.33234  11.10062
+## 457  -61.33234  11.10062
+## 458  -61.33234  11.10062
+## 459  -61.33234  11.10062
+## 460  -61.33234  11.10062
+## 461  -61.33234  11.10062
+## 462  -61.33234  11.10062
+## 463  -61.33234  11.10062
+## 464  -61.33234  11.10062
+## 465  -61.33234  11.10062
+## 466  -61.33234  11.10062
+## 467  -61.33234  11.10062
+## 468  -61.33234  11.10062
+## 469  -61.33234  11.10062
+## 470  -61.33234  11.10062
+## 471  -61.33234  11.10062
+## 472  -61.33234  11.10062
+## 473  -61.33234  11.10062
+## 474  -61.33234  11.10062
+## 475  -61.33234  11.10062
+## 476  -61.33234  11.10062
+## 477  -61.33234  11.10062
+## 478  -61.33234  11.10062
+## 479  -61.33234  11.10062
+## 480  -61.33234  11.10062
+## 481  -61.33234  11.10062
+## 482  -61.33234  11.10062
+## 483  -61.33234  11.10062
+## 484  -61.33234  11.10062
+## 485  -61.33234  11.10062
+## 486  -61.33234  11.10062
+## 487  -61.33234  11.10062
+## 488  -61.33234  11.10062
+## 489  -61.33234  11.10062
+## 490  -61.33234  11.10062
+## 491  -61.33234  11.10062
+## 492  -61.33234  11.10062
+## 493  -61.33234  11.10062
+## 494  -61.33234  11.10062
+## 495  -61.33234  11.10062
+## 496  -61.33234  11.10062
+## 497  -61.33234  11.10062
+## 498  -61.33234  11.10062
+## 499  -61.33234  11.10062
+## 500  -61.33234  11.10062
+## 501  -61.33234  11.10062
+## 502  -61.33234  11.10062
+## 503  -61.33234  11.10062
+## 504  -61.33234  11.10062
+## 505  -61.33234  11.10062
+## 506  -61.33234  11.10062
+## 507  -61.33234  11.10062
+## 508  -61.33234  11.10062
+## 509  -61.33234  11.10062
+## 510  -61.33234  11.10062
+## 511  -61.33234  11.10062
+## 512  -61.33234  11.10062
+## 513  -61.33234  11.10062
+## 514  -61.33234  11.10062
+## 515  -61.33234  11.10062
+## 516  -61.33234  11.10062
+## 517  -61.33234  11.10062
+## 518  -61.33234  11.10062
+## 519  -61.33234  11.10062
+## 520  -61.33234  11.10062
+## 521  -61.33234  11.10062
+## 522  -61.33234  11.10062
+## 523  -61.33234  11.10062
+## 524  -61.33234  11.10062
+## 525  -61.33234  11.10062
+## 526  -61.33234  11.10062
+## 527  -61.33234  11.10062
+## 528  -61.33234  11.10062
+## 529  -61.33234  11.10062
+## 530  -61.33234  11.10062
+## 531  -61.33234  11.10062
+## 532  -61.33234  11.10062
+## 533  -61.33234  11.10062
+## 534  -61.33234  11.10062
+## 535  -61.33234  11.10062
+## 536  -61.33234  11.10062
+## 537  -61.33234  11.10062
+## 538  -61.33234  11.10062
+## 539  -61.33234  11.10062
+## 540  -61.33234  11.10062
+## 541  -61.33234  11.10062
+## 542  -61.33234  11.10062
+## 543  -61.33234  11.10062
+## 544  -61.33234  11.10062
+## 545  -61.33234  11.10062
+## 546  -61.33234  11.10062
+## 547  -61.33234  11.10062
+## 548  -61.33234  11.10062
+## 549  -61.33234  11.10062
+## 550  -61.33234  11.10062
+## 551  -61.33234  11.10062
+## 552  -61.33234  11.10062
+## 553  -61.33234  11.10062
+## 554  -61.33234  11.10062
+## 555  -61.33234  11.10062
+## 556  -61.33234  11.10062
+## 557  -61.33234  11.10062
+## 558  -61.33234  11.10062
+## 559  -61.33234  11.10062
+## 560  -61.33234  11.10062
+## 561  -61.33234  11.10062
+## 562  -61.33234  11.10062
+## 563  -61.33234  11.10062
+## 564  -61.33234  11.10062
+## 565  -61.33234  11.10062
+## 566  -61.33234  11.10062
+## 567  -61.33234  11.10062
+## 568  -61.33234  11.10062
+## 569  -61.33234  11.10062
+## 570  -61.33234  11.10062
+## 571  -61.33234  11.10062
+## 572  -61.33234  11.10062
+## 573  -61.33234  11.10062
+## 574  -61.33234  11.10062
+## 575  -61.33234  11.10062
+## 576  -61.33234  11.10062
+## 577  -61.33234  11.10062
+## 578  -61.33234  11.10062
+## 579  -61.33234  11.10062
+## 580  -61.33234  11.10062
+## 581  -61.33234  11.10062
+## 582  -61.33234  11.10062
+## 583  -61.33234  11.10062
+## 584  -61.33234  11.10062
+## 585  -61.33234  11.10062
+## 586  -61.33234  11.10062
+## 587  -61.33234  11.10062
+## 588  -61.33234  11.10062
+## 589  -61.33234  11.10062
+## 590  -61.33234  11.10062
+## 591  -61.33234  11.10062
+## 592  -61.33234  11.10062
+## 593  -61.33234  11.10062
+## 594  -61.33234  11.10062
+## 595  -61.33234  11.10062
+## 596  -61.33234  11.10062
+## 597  -61.33234  11.10062
+## 598  -61.33234  11.10062
+## 599  -61.33234  11.10062
+## 600  -61.33234  11.10062
+## 601  -61.33234  11.10062
+## 602  -61.33234  11.10062
+## 603  -61.33234  11.10062
+## 604  -61.33234  11.10062
+## 605  -61.33234  11.10062
+## 606  -61.33234  11.10062
+## 607  -61.33234  11.10062
+## 608  -61.33234  11.10062
+## 609  -61.33234  11.10062
+## 610  -61.33234  11.10062
+## 611  -61.33234  11.10062
+## 612  -61.33234  11.10062
+## 613  -61.33234  11.10062
+## 614  -61.33234  11.10062
+## 615  -61.33234  11.10062
+## 616  -61.33234  11.10062
+## 617  -61.33234  11.10062
+## 618  -61.33234  11.10062
+## 619  -61.33234  11.10062
+## 620  -61.33234  11.10062
+## 621  -61.33234  11.10062
+## 622  -61.33234  11.10062
+## 623  -61.33234  11.10062
+## 624  -61.33234  11.10062
+## 625  -61.33234  11.10062
+## 626  -61.33234  11.10062
+## 627  -61.33234  11.10062
+## 628  -61.33234  11.10062
+## 629  -61.33234  11.10062
+## 630  -61.33234  11.10062
+## 631  -61.33234  11.10062
+## 632  -61.33234  11.10062
+## 633  -61.33234  11.10062
+## 634  -61.33234  11.10062
+## 635  -61.33234  11.10062
+## 636  -61.33234  11.10062
+## 637  -61.33234  11.10062
+## 638  -61.33234  11.10062
+## 639  -61.33234  11.10062
+## 640  -61.33234  11.10062
+## 641  -61.33234  11.10062
+## 642  -61.33234  11.10062
+## 643  -61.33234  11.10062
+## 644  -61.33234  11.10062
+## 645  -61.33234  11.10062
+## 646  -61.33234  11.10062
+## 647  -61.33234  11.10062
+## 648  -61.33234  11.10062
+## 649  -61.33234  11.10062
+## 650  -61.33234  11.10062
+## 651  -61.33234  11.10062
+## 652  -61.33234  11.10062
+## 653  -61.33234  11.10062
+## 654  -61.33234  11.10062
+## 655  -61.33234  11.10062
+## 656  -61.33234  11.10062
+## 657  -61.33234  11.10062
+## 658  -61.33234  11.10062
+## 659  -61.33234  11.10062
+## 660  -61.33234  11.10062
+## 661  -61.33234  11.10062
+## 662  -61.33234  11.10062
+## 663  -61.33234  11.10062
+## 664  -61.33234  11.10062
+## 665  -61.33234  11.10062
+## 666  -61.33234  11.10062
+## 667  -61.33234  11.10062
+## 668  -61.33234  11.10062
+## 669  -59.19027  11.05869
+## 670  -59.19027  11.05869
+## 671  -59.19027  11.05869
+## 672  -59.19027  11.05869
+## 673  -59.19027  11.05869
+## 674  -59.19027  11.05869
+## 675  -59.19027  11.05869
+## 676  -59.19027  11.05869
+## 677  -59.19027  11.05869
+## 678  -59.19027  11.05869
+## 679  -59.19027  11.05869
+## 680  -59.19027  11.05869
+## 681  -59.19027  11.05869
+## 682  -59.19027  11.05869
+## 683  -59.19027  11.05869
+## 684  -59.19027  11.05869
+## 685  -59.19027  11.05869
+## 686  -59.19027  11.05869
+## 687  -59.19027  11.05869
+## 688  -59.19027  11.05869
+## 689  -59.19027  11.05869
+## 690  -59.19027  11.05869
+## 691  -59.19027  11.05869
+## 692  -59.19027  11.05869
+## 693  -59.19027  11.05869
+## 694  -59.19027  11.05869
+## 695  -59.19027  11.05869
+## 696  -59.19027  11.05869
+## 697  -59.19027  11.05869
+## 698  -59.19027  11.05869
+## 699  -59.19027  11.05869
+## 700  -59.19027  11.05869
+## 701  -59.19027  11.05869
+## 702  -59.19027  11.05869
+## 703  -59.19027  11.05869
+## 704  -59.19027  11.05869
+## 705  -59.19027  11.05869
+## 706  -59.19027  11.05869
+## 707  -59.19027  11.05869
+## 708  -59.19027  11.05869
+## 709  -59.19027  11.05869
+## 710  -59.19027  11.05869
+## 711  -59.19027  11.05869
+## 712  -59.19027  11.05869
+## 713  -59.19027  11.05869
+## 714  -59.19027  11.05869
+## 715  -59.19027  11.05869
+## 716  -59.19027  11.05869
+## 717  -59.19027  11.05869
+## 718  -59.19027  11.05869
+## 719  -59.19027  11.05869
+## 720  -59.19027  11.05869
+## 721  -59.19027  11.05869
+## 722  -59.19027  11.05869
+## 723  -59.19027  11.05869
+## 724  -59.19027  11.05869
+## 725  -59.19027  11.05869
+## 726  -59.19027  11.05869
+## 727  -59.19027  11.05869
+## 728  -59.19027  11.05869
+## 729  -59.19027  11.05869
+## 730  -59.19027  11.05869
+## 731  -59.19027  11.05869
+## 732  -59.19027  11.05869
+## 733  -59.19027  11.05869
+## 734  -59.19027  11.05869
+## 735  -59.19027  11.05869
+## 736  -59.19027  11.05869
+## 737  -59.19027  11.05869
+## 738  -59.19027  11.05869
+## 739  -59.19027  11.05869
+## 740  -59.19027  11.05869
+## 741  -59.19027  11.05869
+## 742  -59.19027  11.05869
+## 743  -59.19027  11.05869
+## 744  -59.19027  11.05869
+## 745  -59.19027  11.05869
+## 746  -59.19027  11.05869
+## 747  -59.19027  11.05869
+## 748  -59.19027  11.05869
+## 749  -59.19027  11.05869
+## 750  -59.19027  11.05869
+## 751  -59.19027  11.05869
+## 752  -59.19027  11.05869
+## 753  -59.19027  11.05869
+## 754  -59.19027  11.05869
+## 755  -59.19027  11.05869
+## 756  -59.19027  11.05869
+## 757  -59.19027  11.05869
+## 758  -59.19027  11.05869
+## 759  -59.19027  11.05869
+## 760  -59.19027  11.05869
+## 761  -59.19027  11.05869
+## 762  -59.19027  11.05869
+## 763  -59.19027  11.05869
+## 764  -59.19027  11.05869
+## 765  -59.19027  11.05869
+## 766  -59.19027  11.05869
+## 767  -59.19027  11.05869
+## 768  -59.19027  11.05869
+## 769  -59.19027  11.05869
+## 770  -59.19027  11.05869
+## 771  -59.19027  11.05869
+## 772  -59.19027  11.05869
+## 773  -59.19027  11.05869
+## 774  -59.19027  11.05869
+## 775  -59.19027  11.05869
+## 776  -59.19027  11.05869
+## 777  -59.19027  11.05869
+## 778  -59.19027  11.05869
+## 779  -59.19027  11.05869
+## 780  -59.19027  11.05869
+## 781  -59.19027  11.05869
+## 782  -59.19027  11.05869
+## 783  -59.19027  11.05869
+## 784  -59.19027  11.05869
+## 785  -59.19027  11.05869
+## 786  -59.19027  11.05869
+## 787  -59.19027  11.05869
+## 788  -59.19027  11.05869
+## 789  -59.19027  11.05869
+## 790  -59.19027  11.05869
+## 791  -59.19027  11.05869
+## 792  -59.19027  11.05869
+## 793  -59.19027  11.05869
+## 794  -59.19027  11.05869
+## 795  -59.19027  11.05869
+## 796  -59.19027  11.05869
+## 797  -59.19027  11.05869
+## 798  -59.19027  11.05869
+## 799  -59.19027  11.05869
+## 800  -59.19027  11.05869
+## 801  -59.19027  11.05869
+## 802  -59.19027  11.05869
+## 803  -59.19027  11.05869
+## 804  -59.19027  11.05869
+## 805  -59.19027  11.05869
+## 806  -59.19027  11.05869
+## 807  -59.19027  11.05869
+## 808  -59.19027  11.05869
+## 809  -59.19027  11.05869
+## 810  -59.19027  11.05869
+## 811  -59.19027  11.05869
+## 812  -59.19027  11.05869
+## 813  -59.19027  11.05869
+## 814  -59.19027  11.05869
+## 815  -59.19027  11.05869
+## 816  -59.19027  11.05869
+## 817  -59.19027  11.05869
+## 818  -59.19027  11.05869
+## 819  -59.19027  11.05869
+## 820  -59.19027  11.05869
+## 821  -59.19027  11.05869
+## 822  -59.19027  11.05869
+## 823  -59.19027  11.05869
+## 824  -59.19027  11.05869
+## 825  -59.19027  11.05869
+## 826  -59.19027  11.05869
+## 827  -59.19027  11.05869
+## 828  -59.19027  11.05869
+## 829  -59.19027  11.05869
+## 830  -59.19027  11.05869
+## 831  -59.19027  11.05869
+## 832  -59.19027  11.05869
+## 833  -59.19027  11.05869
+## 834  -59.19027  11.05869
+## 835  -59.19027  11.05869
+## 836  -59.19027  11.05869
+## 837  -59.19027  11.05869
+## 838  -59.19027  11.05869
+## 839  -59.19027  11.05869
+## 840  -59.19027  11.05869</code></pre>
 </div>
 </div>
 </div>
