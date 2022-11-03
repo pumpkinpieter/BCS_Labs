@@ -916,8 +916,6 @@ how to split the work). This will involve lots of pushing and pulling
 through Git, and you may have to resolve conflicts if you’re not
 careful! Refer to last Thursday’s class notes for details on conflict
 resolution.</strong></p>
-<p><strong>Use only tools covered on Tuesday’s lecture (including those
-discussed on the lecture recording)</strong>.</p>
 <div id="playing-with-cherry-blossom-race-data" class="section level1">
 <h1>Playing With Cherry Blossom Race Data</h1>
 <ol style="list-style-type: decimal">
@@ -925,36 +923,73 @@ discussed on the lecture recording)</strong>.</p>
 <code>CBdata.1_10.RData</code>. This is the first ten years’ worth of
 Cherry Blossom Race data. Pull out the data associated with 1976 and
 store it as a data frame called <code>dat.76</code>. Remove the column
-<code>Pis/Tis</code>.</li>
+<code>Pis/Tis</code> using a <code>dplyr</code> function.</li>
 </ol>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&quot;CBdata.1_10.RData&quot;</span>) <span class="co">#Loading the cherry blossom data. (this is an example of a properly commented line of code)</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Now write code to remove the specified column</span></span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&quot;CBdata.1_10.RData&quot;</span>) <span class="co">#Loading the cherry blossom data. (this is an example of a properly commented line of code)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Now write code to remove the specified column</span></span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
 <li><p>Use the <code>summarise()</code> function to find the mean and
 median recorded ages in 1976.</p></li>
 <li><p>You might have noticed that a number of age values are missing
 (i.e. <code>NA</code>). Your next goal is to use <code>dplyr</code> to
 remove the data with missing age. This should not be a loop!</p></li>
-<li><p>Next, write a loop that combines all of the data from
-<code>CBdata.1_10</code> into one cleaned data frame. Make sure your
-final data frame has neither the <code>Pis/Tis</code> column nor
-<code>NA</code> Age values.<br />
+<li><p>Last week you wrote a loop to combine all of the data from
+<code>CBdata.1_10</code> into one cleaned data frame. Use the function
+<code>bind_rows()</code> from <code>dplyr</code> to accomplish this same
+task. use the <code>?</code> command to look up documentation on
+functions you’re not familar with like this: <code>?bind_rows</code>.
+Make sure your final data frame has neither the <code>Pis/Tis</code>
+column nor <code>NA</code> Age values.<br />
 Use the <code>identical()</code> function to verify that the 1976 data
 in this larger cleaned data set is the same as the cleaned version of
 <code>dat.76</code>.</p></li>
 <li><p>Now that you have the combined data set for these 10 years, let’s
-compare some basic results to what you found last week.</p></li>
+compare some basic results to what you found last week. Use piping and
+<code>dplyr</code> functions in your computations.<br />
+</p></li>
 </ol>
 <ol style="list-style-type: lower-alpha">
 <li>Calculate the average of the recorded ages in 1976 and that same
 average over the entire <code>CBdata.1_10</code> data set, and make sure
-these numbers match the ones you found in Lab 1.</li>
+these numbers match the ones you found in Lab 1.<br />
+</li>
 <li>Recall that the <code>CBdata.1_10</code> contains the first ten
 year’s worth of cherry blossom race data. Compute the average
 participant age over the first five years and the average age over years
 6-10, and make sure these numbers match the ones you found in Lab
 1.</li>
+</ol>
+<ol start="6" style="list-style-type: decimal">
+<li>Let’s now incorporate weather data into our cherry blossom data set.
+We will be dealing with multiple data sources, so this is a perfect
+oppritunity to practice <code>join</code> skills…</li>
+</ol>
+<ol style="list-style-type: lower-alpha">
+<li>use <code>readr()</code> to import the <code>weatherdat.csv</code>
+data. This is raw data recorded by a weather station in the Washington
+DC area. This particular data set contains daily summaries of various
+weather measurements.</li>
+<li>Open the <code>Rite_of_Spring_1973_2020-1.pdf</code> document, and
+record the dates of the first 10 races. Store this information in a
+vector or data frame.</li>
+<li>Use a <code>join</code> function to add a date column to your cherry
+blossom data frame. Hints: (i) the <code>paste()</code> and
+<code>paste0</code> functions are useful for creating charecter vectors
+(ii) it would be useful for these dates to have the same format as those
+found in the weather data set…</li>
+<li>Use a <code>join</code> function to add precipitation
+<code>PRCP</code> and minimum daily temperature <code>TMIN</code>
+columns to your cherry blossom data set.</li>
 </ol>
 </div>
 <div id="playing-with-the-indoor-positioning-system-data" class="section level1">
@@ -963,8 +998,8 @@ participant age over the first five years and the average age over years
 indoor positioning system data for 15 randomly sampled locations.This
 data set is loaded into memory using the chunk of R code below, complete
 the following exercises.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># loads data set IPS_sampledata</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&quot;IPS_portion.RData&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># loads data set IPS_sampledata</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&quot;IPS_portion.RData&quot;</span>)</span></code></pre></div>
 <div id="variable-dictionary" class="section level3">
 <h3>Variable dictionary</h3>
 <ul>
@@ -989,18 +1024,26 @@ adhoc mode = 1)</p></li>
 <ol style="list-style-type: decimal">
 <li><p>Apply the same <code>class</code> conversions you did last week
 to get these variables into the correct class type. Use
-<code>dplyr</code> functions to complete this operation (there are
-several ways to do so).</p></li>
+<code>dplyr</code> functions and piping to complete this operation
+(there are many ways to do so). If you’d like to <code>mutate</code>
+multiple columns at once, the <code>across()</code> function might be
+useful!</p></li>
 <li><p>Because we only want data relative to access points, remove
 observations that correspond to any other type of device using
-<code>dplyr</code> functions</p></li>
+<code>dplyr</code> functions.</p></li>
 <li><p>Last week you identified variables that provide redundant or no
 information. Remove them from the data frame using <code>dplyr</code>
 functions.</p></li>
 <li><p>Note that the <code>time</code> variable is in milliseconds. Use
-piping (i.e.<code>%&gt;%</code>) to transform it into seconds and then
-convert its class into a time format using the function
+<code>dplyr</code> to transform it into seconds and then convert its
+class into a time format using the function
 <code>as.POSIXct</code>.</p></li>
+<li><p>Convert this data set to a more wide format by creating one
+column for each access point, with each of those columns containing the
+corresponding signal strengths. Hint: you should end up with a data
+frame that has a lot fewer rows!<br />
+Set this data set aside and use the long format data for the rest of the
+assignment</p></li>
 </ol>
 </div>
 <div id="examining-the-data-more-closely" class="section level3">
@@ -1019,24 +1062,19 @@ were close to the 8 expected but had some error. Use the
 <code>case_when</code> function to recode the orientation values as one
 of 0, 45, 90, 135, 180, 225, 270, 315. Call the recoded orientation
 variable <code>rec_orient</code>.</p></li>
-<li><p>Create the function <code>signal_summary_dplyr</code> that takes
-as inputs a location (<code>posX</code>, <code>posY</code>,
+<li><p>Last week you created the function <code>signal_summary</code>
+that takes as inputs a location (<code>posX</code>, <code>posY</code>,
 <code>posZ</code>), an orientation (<code>rec_orient</code>) and an
-access point id (<code>mac</code>). The function must identify and
-subset the rows in <code>IPS_sampledata</code> corresponding to this
-unique combination, then it must calculate and return the mean and
-standard deviation for the corresponding signal strengths. Use piping
-and <code>summarise()</code> in the creation of this function.</p></li>
-<li><p>Create a list where each entry corresponds to a named list
-including unique combination of a location, an orientation, and an
-access point. Use this list in combination with <code>lapply</code> and
-<code>signal_summary</code> to generate a summary of signals for each
-unique combination. <code>Hint</code>: you may want to create a new
-variable with a unique identifier that combines location,
-<code>rec_orient</code> and <code>mac</code> to make your life simpler.
-One way to go about this is using the <code>paste</code> function (see
-<code>?paste</code> for help on its use) with these variables in a
-row-by-row fashion.</p></li>
+access point id (<code>mac</code>). The function identified and subset
+the rows in <code>IPS_sampledata</code> corresponding to this unique
+combination, then calculated and returned the mean and standard
+deviation for the corresponding signal strengths. You then used
+<code>lapply</code> to compute mean and standard deviation values for
+all combinations of location, orientation, and access point ID. Use
+piping,<code>summarise()</code>, and other <code>dplyr</code> functions
+to run this same computation without the use of loops or
+<code>lapply</code>. Compare your results with those from last week to
+confirm you’re doing the right thing!</p></li>
 </ol>
 </div>
 </div>
