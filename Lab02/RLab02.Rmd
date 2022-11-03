@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Playing With Cherry Blossom Race Data
 
-1) First load the data, which is saved as a .RData file called `CBdata.1_10.RData`. This is the first ten years' worth of Cherry Blossom Race data. Pull out the data associated with 1976 and store it as a data frame called `dat.76`. Remove the column `Pis/Tis`. 
+1) First load the data, which is saved as a .RData file called `CBdata.1_10.RData`. This is the first ten years' worth of Cherry Blossom Race data. Pull out the data associated with 1976 and store it as a data frame called `dat.76`. Remove the column `Pis/Tis` using a `dplyr` function. 
 
 
 ```{r import_data}
@@ -26,7 +26,7 @@ load("CBdata.1_10.RData") #Loading the cherry blossom data. (this is an example 
 ```
 
 
-2) Use the `summarise()` function to find the mean and median recorded ages in 1976. 
+2) Use the `summarise()` function to find the mean and median recorded ages in 1976. ADD GROUP BY
 
 ```{r summary}
 
@@ -45,11 +45,13 @@ load("CBdata.1_10.RData") #Loading the cherry blossom data. (this is an example 
 4) Next, write a loop that combines all of the data from `CBdata.1_10` into one cleaned data frame. Make sure your final data frame has neither the `Pis/Tis` column nor `NA` Age values.  
 Use the `identical()` function to verify that the 1976 data in this larger cleaned data set is the same as the cleaned version of `dat.76`. 
 
+NEW FUNCTION `bind_rows(listname)` REMIND THEM THE LOOP SUCKED
+
 ```{r combine_dat}
 
 ```
 
-5) Now that you have the combined data set for these 10 years, let's compare some basic results to what you found last week. 
+5) Now that you have the combined data set for these 10 years, let's compare some basic results to what you found last week. TELL THEM TO USE PIPING
 a) Calculate the average of the recorded ages in 1976 and that same average over the entire `CBdata.1_10` data set, and make sure these numbers match the ones you found in Lab 1.
 b) Recall that the `CBdata.1_10` contains the first ten year's worth of cherry blossom race data. Compute the average participant age over the first five years and the average age over years 6-10, and make sure these numbers match the ones you found in Lab 1.
 
@@ -82,13 +84,20 @@ load("IPS_portion.RData")
 
 ### Let's clean up the data a bit
 
-1. Apply the same `class` conversions you did last week to get these variables into the correct class type. Use `dplyr` functions to complete this operation (there are several ways to do so).
+1. Apply the same `class` conversions you did last week to get these variables into the correct class type. Use `dplyr` functions and piping to complete this operation (there are many ways to do so). LOOK AT ACROSS IF YOU'D LIKE TO MUTATE MULTIPLE COLS AT ONCE
 
-2. Because we only want data relative to access points, remove observations that correspond to any other type of device using `dplyr` functions
+```{r }
+library(dplyr)
+IPS_sampledata %>% mutate(across(c(posX,posY,posZ),as.numeric))
+IPS_sampledata %>% summarise_at(c("posX",'posY',"posZ"),~as.numeric(.))
+
+```
+
+2. Because we only want data relative to access points, remove observations that correspond to any other type of device using `dplyr` functions.
 
 3. Last week you identified variables that provide redundant or no information. Remove them from the data frame using `dplyr` functions. 
 
-4. Note that the `time` variable is in milliseconds.  Use piping (i.e.` %>% `) to transform it into seconds and then convert its class into a time format using the function `as.POSIXct`.
+4. Note that the `time` variable is in milliseconds.  Use `dplyr` to transform it into seconds and then convert its class into a time format using the function `as.POSIXct`.
 
 
 ### Examining the data more closely
@@ -101,4 +110,6 @@ load("IPS_portion.RData")
 
 4. Create the function `signal_summary_dplyr` that takes as inputs a location (`posX`, `posY`, `posZ`), an orientation (`rec_orient`) and an access point id (`mac`).  The function must identify and subset the rows in `IPS_sampledata` corresponding to this unique combination, then it must calculate and return the mean and standard deviation for the corresponding signal strengths. Use piping and `summarise()` in the creation of this function.
 
-5.  Create a list where each entry corresponds to a named list including unique combination of a location, an orientation, and an access point.  Use this list in combination with `lapply` and `signal_summary` to generate a summary of signals for each unique combination. `Hint`: you may want to create a new variable with a unique identifier that combines location, `rec_orient` and `mac` to make your life simpler.  One way to go about this is using the `paste` function (see `?paste` for help on its use) with these variables in a row-by-row fashion.
+CALC COLUMNS FOR MEAN AND SD FOR EACH COMBO OF LOC, ORIENT, ACC. NO LOOPS. NO LAPPLY.
+
+COMPARE WITH LAST WEEK. FASTER EH?
