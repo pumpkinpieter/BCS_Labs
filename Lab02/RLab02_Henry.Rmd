@@ -232,6 +232,8 @@ Use piping,`summarise()`, and other `dplyr` functions to run this same computati
 
 ```{r}
 
-
+IPS.final = IPS.data %>% group_by(posX, posY, rec_orient, mac) %>%
+  summarise(signal_avg = mean(signal),
+            signal_sd = sd(signal))
 
 ```
