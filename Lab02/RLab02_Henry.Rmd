@@ -19,7 +19,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r import_data}
 library(dplyr)
+library(tidyr)
 library(readr)
+
 
 load("CBdata.1_10.RData") #Loading the cherry blossom data. (this is an example of a properly commented line of code)
 
@@ -91,15 +93,15 @@ dates = c("1973-04-01", "1974-03-31",
           "1979-04-01", "1980-03-30",
           "1981-04-05", "1982-04-04")
 
+#dates = as.data.frame(dates)
+dates = as.Date(dates)
 dates = as.data.frame(dates)
 
 ```
 c) Use a `join` function to add a date column to your cherry blossom data frame. Hints: (i) the `paste()` and `paste0` functions are useful for creating charecter vectors (ii) it would be useful for these dates to have the same format as those found in the weather data set...
 ```{r}
 
-
-
-#right_join(CBData.clean,dates, by = c("Year" = "dates"))
+#full_join(CBData.clean, dates, by = "Year")
 
 ```
 d) Use a `join` function to add precipitation `PRCP`  and minimum daily temperature `TMIN` columns to your cherry blossom data set.
@@ -181,17 +183,55 @@ Set this data set aside and use the long format data for the rest of the assignm
 
 ```{r}
 
-#a_pts = unique(IPS.data$mac, as.ch)
+IPS.wide = IPS.data %>% pivot_wider(names_from = mac, values_from = signal)
 
 ```
 
 ### Examining the data more closely
 
-1. Using grouping and `dplyr` functions, tally the  number of observations for all access points in the data. 
+1. Using grouping and `dplyr` functions, tally the  number of observations for all access points in the data.
+
+```{r}
+
+total = IPS.data %>% group_by(mac) %>% tally()
+
+```
 
 2. While the researchers did their best to clean their data, some noise was introduced by access points on other floors.  Based on the number of counts, identify and remove likely suspects for access points read by mistake, again using `dplyr` functions.
 
+```{r}
+a_pts = total %>% filter(n>10000)
+
+IPS.data = IPS.data %>% filter(mac%in%a_pts$mac)
+print(unique(IPS.data$mac))
+
+```
+
 3.  The orientation of the hand-held device considered was supposed to be exactly set to the 8 angles from 0-315 in increments of 45 degrees (360 is equivalent to 0). However, in practice the measured orientations were close to the 8 expected but had some error.  Use the `case_when` function to recode the orientation values as one of 0, 45, 90, 135, 180, 225, 270, 315. Call the recoded orientation variable `rec_orient`.
+
+```{r}
+
+IPS.data = IPS.data %>% mutate(rec_orient = round(orientation)) %>%
+  mutate(rec_orient = case_when(
+    orientation <= 2 ~  0,
+    abs(45-rec_orient) <= 2 ~ 45,
+    abs(90-rec_orient) <= 2 ~ 90,
+    abs(135-rec_orient) <= 2 ~ 135,
+    abs(180-rec_orient) <= 2 ~ 180,
+    abs(225-rec_orient) <= 2 ~ 225,
+    abs(270-rec_orient) <= 2 ~ 270,
+    abs(315-rec_orient) <= 2 ~ 315,
+    abs(360-rec_orient) <= 2 ~ 0))
+
+print(unique(IPS.data$rec_orient))
+
+```
 
 4. Last week you created the function `signal_summary` that takes as inputs a location (`posX`, `posY`, `posZ`), an orientation (`rec_orient`) and an access point id (`mac`).  The function identified and subset the rows in `IPS_sampledata` corresponding to this unique combination, then calculated and returned the mean and standard deviation for the corresponding signal strengths. You then used `lapply` to compute mean and standard deviation values for all combinations of location, orientation, and access point ID. 
 Use piping,`summarise()`, and other `dplyr` functions to run this same computation without the use of loops or `lapply`. Compare your results with those from last week to confirm you're doing the right thing!
+
+```{r}
+
+
+
+```
