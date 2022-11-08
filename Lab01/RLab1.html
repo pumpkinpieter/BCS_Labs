@@ -438,7 +438,7 @@ Use the <code>identical()</code> function to verify that the 1976 data in this l
 <li>Assess if there are any variables that provide redundant or no information. If so, remove them from the data frame.</li>
 </ol>
 <div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39;posz&#39; is always zero. &#39;type&#39; is always 3. &#39;Channel&#39; is never used.</span></span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>drop_IPS <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;channel&quot;</span>,<span class="st">&quot;type&quot;</span>)</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>drop_IPS <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;channel&quot;</span>,<span class="st">&quot;type&quot;</span>,<span class="st">&quot;scanMac&quot;</span>)</span>
 <span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>IPS.clean<span class="ot">=</span> IPS.clean[,<span class="sc">!</span>(<span class="fu">names</span>(IPS.clean) <span class="sc">%in%</span> drop_IPS)]</span></code></pre></div>
 <ol start="5" style="list-style-type: decimal">
 <li>Note that the <code>time</code> variable is in milliseconds. Transform it into seconds and then convert its class into a time format using the function <code>as.POSIXct</code>.</li>

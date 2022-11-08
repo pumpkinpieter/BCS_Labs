@@ -239,8 +239,8 @@ unique(IPS.clean$type)
 4. Assess if there are any variables that provide redundant or no information. If so, remove them from the data frame.
 ```{r  remove_var_channel}
 
-#'posz' is always zero. 'type' is always 3. 'Channel' is never used.
-drop_IPS <- c("channel","type")
+#'posz' is always zero. 'type' is always 3. 'scanMac' and 'Channel' are  never used.
+drop_IPS <- c("channel","type","scanMac")
 IPS.clean= IPS.clean[,!(names(IPS.clean) %in% drop_IPS)]
 
 

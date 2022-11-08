@@ -19,16 +19,37 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r import_data}
 library(dplyr)
-load("CBdata.1_10.RData") #Loading the cherry blossom data. (this is an example of a properly commented line of code)
+library(tidyr)
+library(readr)
+#Loading the cherry blossom data. (this is an example of a properly commented line of code)
+#CBdata.1_10 is list of dataframes. Each dataframe has data for one year
+load("CBdata.1_10.RData") 
+
+#Now write code to get the index of list elemnet(data frame) for year = 1976
+for(i in 1:length(CBdata.1_10)){
+if(unique(CBdata.1_10[[i]]["Year"])==1976){
+   index = i
+}
+  
+}
+print(index)
+
+#assign the data frame for year 1976 to dat.76
+dat.76 = CBdata.1_10[[index]]
 
 #Now write code to remove the specified column
-
+dat.76= dplyr::select(dat.76, -'PiS/TiS')
 ```
 
 
 2) Use the `summarise()` function to find the mean and median recorded ages in 1976. 
 
 ```{r summary}
+#select Age column from dat.76
+age_summary1976 = dat.76%>%dplyr::select(Year,Age) %>%
+                  group_by(Year) %>%
+#summarize function to generate mean and median summary of column 'Age' 
+                  summarise(mean = mean(Age,na.rm = TRUE), median = median(Age,na.rm = TRUE))
 
 ```
 
@@ -37,8 +58,11 @@ load("CBdata.1_10.RData") #Loading the cherry blossom data. (this is an example 
 
 
 ```{r remove_missing_age}
+#Remove rows with missing 'Age' value
+dat.76.clean <- dplyr::filter(dat.76,!(is.na(dat.76$Age)))
 
-
+#check count of missing value in Age column
+sum(is.na(dat.76.clean$Age))
 ```
 
 
@@ -46,19 +70,102 @@ load("CBdata.1_10.RData") #Loading the cherry blossom data. (this is an example 
 Use the `identical()` function to verify that the 1976 data in this larger cleaned data set is the same as the cleaned version of `dat.76`. 
 
 ```{r combine_dat}
+#Combine all of the data from `CBdata.1_10` into one cleaned data frame`bind_rows()` from `dplyr` 
+dat.all = dplyr::bind_rows(CBdata.1_10)
+
+#Drop  `Pis/Tis`
+dat.all = dplyr::select(dat.all, -'PiS/TiS')
+
+#Drop rows with `NA` Age values. 
+dat.all.clean<- dplyr::filter(dat.all,!(is.na(dat.all$Age)))
+
+#Subset data for year =1976
+dat.76.2 = dplyr::filter(dat.all.clean,dat.all.clean$Year==1976)
+
+#`identical()` function to verify that the 1976 data in this larger cleaned data set is the same as the cleaned version of `dat.76
+identical(dat.76.clean,dat.76.2)
 
 ```
 
 5) Now that you have the combined data set for these 10 years, let's compare some basic results to what you found last week. Use piping and `dplyr` functions in your computations.  
 a) Calculate the average of the recorded ages in 1976 and that same average over the entire `CBdata.1_10` data set, and make sure these numbers match the ones you found in Lab 1.  
+
+```{r}
+age_summary = dplyr::filter(dat.all.clean,dat.all.clean$Year==1976)%>%
+              select(Age,Year)%>%
+              group_by(Year) %>%
+              summarise(mean = mean(Age), median = median(Age))
+
+identical(age_summary,age_summary1976) 
+```
 b) Recall that the `CBdata.1_10` contains the first ten year's worth of cherry blossom race data. Compute the average participant age over the first five years and the average age over years 6-10, and make sure these numbers match the ones you found in Lab 1.  
 
+```{r}
+avg_age1973_77 = dplyr::filter(dat.all.clean,dat.all.clean$Year<=1977)%>%
+                 select(Age)%>%
+                  summarise(mean = mean(Age))
 
-6) Let's now incorporate weather data into our cherry blossom data set. We will be dealing with multiple data sources, so this is a perfect oppritunity to practice `join` skills...
+avg_age1978_82 = dplyr::filter(dat.all.clean,dat.all.clean$Year>1977)%>%
+                 select(Age)%>%
+                  summarise(mean = mean(Age))
+
+print(paste0("Average participant age over the first five years = ",avg_age1973_77))
+print(paste0("Average participant age over the first five years = ",avg_age1978_82))
+```
+
+
+6) Let's now incorporate weather data into our cherry blossom data set. We will be dealing with multiple data sources, so this is a perfect opportunity to practice `join` skills...
 a) use `readr()` to import the `weatherdat.csv` data. This is raw data recorded by a weather station in the Washington DC area. This particular data set contains daily summaries of various weather measurements. 
+
+```{r}
+library(readr)
+
+#read `weatherdat.csv`
+weatherData = read.csv("weatherdat.csv")
+
+#check the structure of weatherData 
+str(weatherData)
+```
+
 b) Open the `Rite_of_Spring_1973_2020-1.pdf` document, and record the dates of the first 10 races. Store this information in a vector or data frame.
-c) Use a `join` function to add a date column to your cherry blossom data frame. Hints: (i) the `paste()` and `paste0` functions are useful for creating charecter vectors (ii) it would be useful for these dates to have the same format as those found in the weather data set...
+
+```{r}
+#Record the dates of the first 10 races
+DATE = c("1973-04-01", "1974-03-31",
+          "1975-04-06", "1976-04-04",
+          "1977-04-03", "1978-04-02",
+          "1979-04-01", "1980-03-30",
+          "1981-04-05", "1982-04-04")
+
+#dates = as.data.frame(dates)
+df_race = as.data.frame(DATE)
+
+
+
+```
+
+c) Use a `join` function to add a date column to your cherry blossom data frame. Hints: (i) the `paste()` and `paste0` functions are useful for creating character vectors 
+
+(ii) it would be useful for these dates to have the same format as those found in the weather data set.
+
+```{r join}
+#add year column to the dataframe
+df_race$Year = lubridate::year(df_race$DATE)
+
+#Use a `join` function to  join cherry blossom data frame with df_race dataframe by 'Year' column
+#This will add 'DATE' column of  df_race data frame to cherry blossom data frame
+dat.all.clean = dat.all.clean %>% inner_join(df_race,by = "Year") 
+
+```
+
 d) Use a `join` function to add precipitation `PRCP`  and minimum daily temperature `TMIN` columns to your cherry blossom data set.
+
+```{r race_weather_data}
+#Use a `join` function to  join cherry blossom data frame with weatherData by 'DATE' column
+
+#This will add selected columns of  weatherData  to cherry blossom data frame
+dat.all2 = dat.all.clean %>% inner_join(weatherData[,c("DATE","PRCP","TMIN")],by = "DATE") 
+```
 
 # Playing with the indoor positioning system data
 
@@ -92,24 +199,32 @@ load("IPS_portion.RData")
 1. Apply the same `class` conversions you did last week to get these variables into the correct class type. Use `dplyr` functions and piping to complete this operation (there are many ways to do so). If you'd like to `mutate` multiple columns at once, the `across()` function might be useful!
 
 ```{r}
+#check structure of IPS_sampledata before applying any conversions
+str(IPS_sampledata)
+
+# convert "posX","posY","posZ","signal","orientation","time" to numeric
 IPS_sampledata = IPS_sampledata %>% mutate(across(c("time","posX","posY","posZ","orientation","signal"), as.numeric))
 
-summary(IPS_sampledata)
+#check structure of IPS_sampledata after conversions
+str(IPS_sampledata)
 
 ```
 
 2. Because we only want data relative to access points, remove observations that correspond to any other type of device using `dplyr` functions.
 
 ```{r}
-
+#type of device (access point = 3, device in adhoc mode = 1). So we keep only the devices with type =3
 IPS.data = IPS_sampledata %>% filter(type == 3)
+
+#Check
+unique(IPS.data$type)
 
 ```
 
 3. Last week you identified variables that provide redundant or no information. Remove them from the data frame using `dplyr` functions. 
 
 ```{r}
-
+#'posz' is always zero. 'type' is always 3. 'scanMac' and 'Channel' are  never used.
 IPS.data = IPS.data %>% select(-c("channel","type","posZ","scanMac"))
 
 ```
@@ -117,8 +232,9 @@ IPS.data = IPS.data %>% select(-c("channel","type","posZ","scanMac"))
 4. Note that the `time` variable is in milliseconds.  Use `dplyr` to transform it into seconds and then convert its class into a time format using the function `as.POSIXct`.
 
 ```{r}
-
+#Convert time to seconds from milliseconds
 IPS.data = IPS.data %>% mutate(time = (time / 1000)) %>% 
+#`dplyr` to transform time to  `as.POSIXct`
   mutate(time = as.POSIXct(time, origin = "1970-01-01", tz = "UTC"))
 
 ```
@@ -147,9 +263,16 @@ print(total)
 2. While the researchers did their best to clean their data, some noise was introduced by access points on other floors.  Based on the number of counts, identify and remove likely suspects for access points read by mistake, again using `dplyr` functions.
 
 ```{r}
-a_pts = total %>% filter(n>10000)
 
-IPS.data = IPS.data %>% filter(mac%in%a_pts$mac)
+# identify likely suspects for access points
+print("From the total(tally mac summary) displayed in 1 we can see that  most of the access points have count of order of ten thousand. However there are four access points with very low count and seem inconsistent with the remaining data")
+
+print("Access points with very low count(<10000) are: ")
+
+
+a_pts = total %>% dplyr::filter(n>10000)
+
+IPS.data = IPS.data %>% dplyr::filter(mac%in%a_pts$mac)
 print(unique(IPS.data$mac))
 
 ```
@@ -177,7 +300,9 @@ print(unique(IPS.data$rec_orient))
 4. Last week you created the function `signal_summary` that takes as inputs a location (`posX`, `posY`, `posZ`), an orientation (`rec_orient`) and an access point id (`mac`).  The function identified and subset the rows in `IPS_sampledata` corresponding to this unique combination, then calculated and returned the mean and standard deviation for the corresponding signal strengths. You then used `lapply` to compute mean and standard deviation values for all combinations of location, orientation, and access point ID. 
 Use piping,`summarise()`, and other `dplyr` functions to run this same computation without the use of loops or `lapply`. Compare your results with those from last week to confirm you're doing the right thing!
 
-```{r}
+
+
+```{r hw2}
 
 IPS.final = IPS.data %>% group_by(posX, posY, rec_orient, mac) %>%
   summarise(signal_avg = mean(signal),
