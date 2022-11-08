@@ -43,7 +43,7 @@ dat.76 = select(dat.76, -'PiS/TiS')
 2) Use the `summarise()` function to find the mean and median recorded ages in 1976. 
 
 ```{r summary}
-dat.76 %>% summarise(mean(Age, na.rm=TRUE), median(Age, na.rm=TRUE))
+age_summary1976 = dat.76 %>% summarise(mean(Age, na.rm=TRUE), median(Age, na.rm=TRUE))
 
 
 ```
