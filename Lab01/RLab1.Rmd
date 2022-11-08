@@ -58,14 +58,19 @@ Hints:
 - Depending on how you write your code, you may need to negate a logical vector using `!`. Ex: `!c(TRUE, TRUE, FALSE)` is identical to `c(FALSE, FALSE, TRUE)`.
 
 ```{r filter_missing_age_loop}
+#create a vector with index of rows with missing age values
+
 drop_rows = c()
 for(i in 1:nrow(dat.76)){
+  #check if ith row has missing age
   if(is.na(dat.76$Age[i])){
+    #append i to drop_rows
     drop_rows= append(drop_rows,i)
   }
 }
 print(length(drop_rows))
 
+#drop all rows with indices %in% drop_rows
 dat.76.clean <- dat.76[-drop_rows,]
 
 ```
@@ -75,9 +80,10 @@ How to check your work: If your loop produced a data frame called "dat.76.clean"
 
 ```{r filter_missing_age_vectorization}
 
+#subset all rows from dat.76 excluding those with missing age
 dat.76.clean2 = dat.76[!is.na(dat.76$Age),]
 
-#check
+#check 
 identical(dat.76.clean,dat.76.clean2)
 ```
 
@@ -210,7 +216,10 @@ summary(IPS_sampledata)
 ##convert signal, posx, posy and posz
 
 ```{r class_conversion}
+#check structure of IPS_sampledata before applying any conversions
+str(IPS_sampledata)
 
+# convert "posX","posY","posZ","signal","orientation","time" to numeric
 IPS_sampledata[,c("posX","posY","posZ","signal","orientation","time")]=lapply(IPS_sampledata[,c("posX","posY","posZ","signal","orientation","time")],as.numeric)
 
 str(IPS_sampledata)
@@ -219,7 +228,7 @@ str(IPS_sampledata)
 3. Because we only want data relative to access points, remove observations that correspond to any other type of device.
 
 ```{r  remove_type1}
-
+#type of device (access point = 3, device in adhoc mode = 1). So we keep only the devices with type =3
 IPS.clean   = IPS_sampledata[IPS_sampledata$type==3,]
 
 #Check
@@ -311,63 +320,54 @@ unique(IPS.clean2$rec_orient)
 
 ```{r signal_summary}
 
-signal_summary <- function(df,pos_x,pos_y,pos_z,rorient,access){
+inpt1.names <- c("posX", "posY", "posZ", "rec_orient","mac")
+inpt1 <- NULL
+inpt1[inpt1.names] <- list(NULL)
+
+
+signal_summary <- function(inpt_list){
+                        
                           
                         #Subset dataframe
-                         signal_df = df[c(df$posX==pos_x & df$posY==pos_y & df$posZ==pos_z & df$rec_orient == rorient & df$mac == access),]
+                         signal_df = IPS.clean2[c(IPS.clean2$posX==inpt_list$posX & IPS.clean2$posY==inpt_list$posY & IPS.clean2$posZ==inpt_list$posZ & IPS.clean2$rec_orient == inpt_list$rec_orient & IPS.clean2$mac == inpt_list$mac),]
                          
                          #mean and standard deviation for the corres. signal strengths
                          mean_signal = mean(signal_df$signal,na.rm = TRUE)
                          std_dev_signal = sd(signal_df$signal,na.rm = TRUE)
-                         signal_strngth = c(mean_signal,std_dev_signal)
-                        
+                         identifier = paste0("posX_",unique(signal_df$posX),"_posY_",unique(signal_df$posY),"_posZ_",unique(signal_df$posZ),"_rec_orient_",unique(signal_df$rec_orient),"_mac_",unique(signal_df$mac))
+                         signal_strngth = c(identifier,mean_signal,std_dev_signal)
+                          
                          return(signal_strngth)
-                        }
-signal_summary(IPS.clean2,pos_x=2,pos_y=13,pos_z=0,rorient=315,access = "00:14:bf:b1:97:8a")
+
+}
+
+
+inpt1[[1]]= list(posX =2,posY= 13,posZ = 0,rec_orient = 315,mac = "00:14:bf:b1:97:8a")
+inpt1[[2]]= list(posX =2,posY= 13,posZ = 0,rec_orient = 45,mac = "00:14:bf:b1:97:8a")
+signal_summary(inpt1[[2]])
 ```
 6.  Create a list where each entry corresponds to a named list including unique combination of a location, an orientation, and an access point.  Use this list in combination with `lapply` and `signal_summary` to generate a summary of signals for each unique combination. `Hint`: you may want to create a new variable with a unique identifier that combines location, `rec_orient` and `mac` to make your life simpler.  One way to go about this is using the `paste` function (see `?paste` for help on its use) with these variables in a row-by-row fashion.
 
 
 ```{r}
 
-
-
-
-
+#Filter unique combination of a location, an orientation, and an access point
 df = unique(IPS.clean2[,c("posX","posY","posZ","rec_orient","mac")])
 
-mac_orient_signal_df = data.frame(matrix(vector(), 840, 8,
-                dimnames=list(c(), c("posX","posY","posZ","rec_orient","mac","unique_comb","avg_signal","sd_signal"))),
+#create a dataframe with unique combination of a location, an orientation, and an access point
+mac_orient_signal_df = data.frame(matrix(vector(), 840, 5,
+                dimnames=list(c(), c("posX","posY","posZ","rec_orient","mac"
+                                     #,"avg_signal","sd_signal"
+                                     ))),
                 stringsAsFactors=F)
 
 mac_orient_signal_df[,c("posX","posY","posZ","rec_orient","mac")]<- df[,c("posX","posY","posZ","rec_orient","mac")]
 
-mac_orient_signal_df$avg_signal = 0
-mac_orient_signal_df$sd_signal = 0
+#convert the dataframe to a list of lists with each. Each elemnt in the list is a list of  data points for one row of the dataframe
+mac_orient_signal_list <- split(mac_orient_signal_df,seq(nrow(mac_orient_signal_df))) 
 
-mac_orient_signal_df["unique_comb"] =  paste0(as.character(mac_orient_signal_df$posX),as.character(mac_orient_signal_df$posY),as.character(mac_orient_signal_df$posZ),as.character(mac_orient_signal_df$rec_orient),mac_orient_signal_df$mac)
- 
-m = list()
-for(k in 1: nrow(mac_orient_signal_df)){
-
-  m[[k]]= lapply(IPS.clean2[,c("posX","posY","posZ","rec_orient","mac")],
-            FUN = signal_summary,
-            pos_x=IPS.clean2$posX[k],
-            pos_y=IPS.clean2$posY[k],
-            pos_z=IPS.clean2$posZ[k] ,
-            rorient=IPS.clean2$rec_orient[k],
-            #access = IPS.clean2$mac[k],
-            df=IPS.clean2
-            )
-
-#print(m[[k]]$mac[1])
-
-
-mac_orient_signal_df$avg_signal[k]=  m[[k]]$mac[1]
-mac_orient_signal_df$sd_signal[k] =  m[[k]]$mac[2]
-
-}
-mac_orient_signal_df = unique(mac_orient_signal_df)
-print(mac_orient_signal_df)
+#use lapply function and signal_summary to generate a summary of signals for each unique combination
+summary_avg= lapply(mac_orient_signal_list,signal_summary)
+print(summary_avg)
 ```
 
