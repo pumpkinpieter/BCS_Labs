@@ -43,8 +43,11 @@ dat.76 = select(dat.76, -'PiS/TiS')
 2) Use the `summarise()` function to find the mean and median recorded ages in 1976. 
 
 ```{r summary}
-age_summary1976 = dat.76 %>% summarise(mean(Age, na.rm=TRUE), median(Age, na.rm=TRUE))
-
+#select Age column from dat.76
+age_summary1976 = dat.76%>%dplyr::select(Year,Age) %>%
+                  group_by(Year) %>%
+#summarize function to generate mean and median summary of column 'Age' 
+                  summarise(mean = mean(Age,na.rm = TRUE), median = median(Age,na.rm = TRUE))
 
 ```
 
@@ -53,11 +56,10 @@ age_summary1976 = dat.76 %>% summarise(mean(Age, na.rm=TRUE), median(Age, na.rm=
 
 
 ```{r remove_missing_age}
+#Remove rows with missing 'Age' value
+dat.76.clean <- dplyr::filter(dat.76,!(is.na(dat.76$Age)))
 
-sum(is.na(dat.76$Age))
-
-dat.76.clean <- dat.76 %>% filter(!is.na(Age))  # Filter out 
-
+#check count of missing value in Age column
 sum(is.na(dat.76.clean$Age))
 ```
 
@@ -92,6 +94,7 @@ age_summary = dplyr::filter(dat.all.clean,dat.all.clean$Year==1976)%>%
               group_by(Year) %>%
               summarise(mean = mean(Age), median = median(Age))
 
+#check
 identical(age_summary,age_summary1976) 
 ```
 b) Recall that the `CBdata.1_10` contains the first ten year's worth of cherry blossom race data. Compute the average participant age over the first five years and the average age over years 6-10, and make sure these numbers match the ones you found in Lab 1.  
