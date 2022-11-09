@@ -1,0 +1,73 @@
+---
+title: "Data Visualization Lab: IPS Teams"
+output: rmdformats::html_docco
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**Complete the following lab as a group. This document should exist in your GitHub repo while you're working on it. Your code should be heavily commented so someone reading your code can follow along easily. See the first code snippet below for an example of commented code.**
+
+**Here's the catch: For any given problem, the person writing the code should not be the person commenting that code, and every person must both code AND comment at least one problem in this lab (you decide how to split the work). This will involve lots of pushing and pulling through Git, and you may have to resolve conflicts if you're not careful! Refer to last Thursday's class notes for details on conflict resolution.**
+
+**Use only tools covered on Tuesday's lecture**.
+
+
+# Playing with the indoor positioning system data
+
+The `IPS_sampledata` data set contains a fraction of the indoor positioning system data for 15 randomly sampled locations.This data set is loaded into memory using the chunk of R code below, complete the following exercises. 
+
+The exercises below aim to help you polish your data visualization skills in R, while helping you gain a better understanding of the IPS data.
+
+First, let's load up the dataset
+
+```{r eval=T, echo=T}
+# loads data set IPS_sampledata
+load("../Lab01/IPS_portion.RData")
+```
+
+### Variable dictionary
+
+- `time`: timestamp in milliseconds since midnight 01/01/1970 UTC
+
+- `scanMac`: MAC address of the scanning device (this is a handheld device)
+
+- `posX`, `posY` and `posZ`: the (x, y, z) physical coordinate of the scanning device
+
+- `orientation`: degree orientation of the user carrying the scanning device in degrees
+
+- `mac`: MAC address of an access point
+
+- `signal`: signal strength in dBm (Decibel-milliwatts)
+
+- `channel`: the channel frequency
+
+- `type`: type of device (access point = 3, device in adhoc mode = 1)
+
+### Let's clean up the data a bit
+
+1. First apply the `summary` function to the `IPS_data` to get a sense of what is available in that data frame. 
+
+2. Identify variables that need any `class` conversion. Attempting to avoid code-replication as much as possible, convert these variables into the correct class type.
+
+3. Because we only want data relative to access points, remove observations that correspond to any other type of device.
+
+4. Assess if there are any variables that provide redundant or no information. If so, remove them from the data frame.
+
+5. Note that the `time` variable is in milliseconds.  Transform it into seconds and then convert its class into a time format using the function `as.POSIXct`.
+
+
+### Examining the data more closely
+
+1. Create the function `tally_mac` whose only input is the MAC address of an access point, and returns the number of observations found in the data set for it.
+
+2. Use the function `unique` to identify the unique levels for `mac` found in the data set. 
+
+3. Using an approach learned in class together with `tally_mac`, tally the  number of observations for all access points in the data. While the researchers did their best to clean their data, some noise was introduced by access points on other floors.  Based on the number of counts, identify and remove likely suspects for access points read by mistake.
+
+4.  The orientation of the hand-held device considered was supposed to be exactly set to the 8 angles from 0-315 in increments of 45 degrees (360 is equivalent to 0). However, in practice the measured orientations were close to the 8 expected but had some error, so we'll need to group them.  Develop and apply a function to recode the orientation values as one of 0, 45, 90, 135, 180, 225, 270, 315. Call the recoded orientation variable `rec_orient`.
+
+5. Create the function `signal_summary` that takes as inputs a location (`posX`, `posY`, `posZ`), an orientation (`rec_orient`) and an access point id (`mac`).  The function must identify and subset the rows in `IPS_sampledata` corresponding to this unique combination, then it must calculate and return the mean and standard deviation for the corresponding signal strengths. 
+
+6.  Create a list where each entry corresponds to a named list including unique combination of a location, an orientation, and an access point.  Use this list in combination with `lapply` and `signal_summary` to generate a summary of signals for each unique combination. `Hint`: you may want to create a new variable with a unique identifier that combines location, `rec_orient` and `mac` to make your life simpler.  One way to go about this is using the `paste` function (see `?paste` for help on its use) with these variables in a row-by-row fashion.
