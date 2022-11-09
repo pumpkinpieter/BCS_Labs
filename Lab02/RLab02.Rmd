@@ -89,12 +89,17 @@ identical(dat.76.clean,dat.76.2)
 a) Calculate the average of the recorded ages in 1976 and that same average over the entire `CBdata.1_10` data set, and make sure these numbers match the ones you found in Lab 1.  
 
 ```{r}
+# 
 age_summary = dplyr::filter(dat.all.clean,dat.all.clean$Year==1976)%>%
               select(Age,Year)%>%
               group_by(Year) %>%
               summarise(mean = mean(Age), median = median(Age))
 
+<<<<<<< HEAD
 #check
+=======
+#
+>>>>>>> 8f584b9 (comments for Cherry question 5)
 identical(age_summary,age_summary1976) 
 ```
 b) Recall that the `CBdata.1_10` contains the first ten year's worth of cherry blossom race data. Compute the average participant age over the first five years and the average age over years 6-10, and make sure these numbers match the ones you found in Lab 1.  
