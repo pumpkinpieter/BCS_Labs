@@ -25,7 +25,7 @@ First, let's load up the data set.
 
 ```{r eval=TRUE, echo=TRUE, message=FALSE}
 # loads data set IPS_sampledata
-load("../Lab01/IPS_portion.RData")
+load("IPS_portion.RData")
 mac_locs <- readr::read_table("accessPointLocations.txt")
 ```
 
