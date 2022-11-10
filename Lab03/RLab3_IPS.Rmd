@@ -1,5 +1,6 @@
 ---
-title: "Data Visualization Lab: IPS Teams"
+title: "Data Visualization Lab"
+subtitle: "IPS Teams"
 output: rmdformats::downcute
 ---
 
@@ -22,13 +23,13 @@ The exercises below aim to help you polish your data visualization skills in R w
 
 First, let's load up the data set.
 
-```{r eval=T, echo=T}
+```{r eval=TRUE, echo=TRUE, message=FALSE}
 # loads data set IPS_sampledata
 load("../Lab01/IPS_portion.RData")
 mac_locs <- readr::read_table("accessPointLocations.txt")
 ```
 
-### Variable dictionary
+## Variable dictionary
 
 - `time`: timestamp in milliseconds since midnight 01/01/1970 UTC
 
@@ -46,7 +47,7 @@ mac_locs <- readr::read_table("accessPointLocations.txt")
 
 - `type`: type of device (access point = 3, device in adhoc mode = 1)
 
-### Preparing the data
+## Preparing the data
 
 For this part of the lab you may use some of the code from the previous two labs to save some time.
 
@@ -83,9 +84,9 @@ For this part of the lab you may use some of the code from the previous two labs
 ```
 
 
-### Getting useful visualizations
+## Getting useful visualizations
 
-Throughout this section you'll have some freedom to create some useful visualizations for your data.  [Here is a link](https://github.com/rstudio/cheatsheets/blob/main/data-visualization-2.1.pdf) to a `ggplot2` cheat-sheet, and [here is another link](https://r-graph-gallery.com/index.html) to a nice R graph gallery for inspiration.
+Throughout this section you'll have some freedom to create some useful visualizations for your data.  [**Here is a link**](https://github.com/rstudio/cheatsheets/blob/main/data-visualization-2.1.pdf) to a `ggplot2` cheat-sheet, and [**here is another link**](https://r-graph-gallery.com/index.html) to a nice R graph gallery for inspiration.
 
 1. Generate a scatter plot showing the locations (`posX` and `posY` in `IPS_Sampledata`) of the handheld device, as well as those from the access points (variables `x` and `y` from `mac_locs`).   Use the `aesthetic` of your choosing to distinguish the handheld device locations from those corresponding to the access points.
 
