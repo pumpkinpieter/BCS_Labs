@@ -1,6 +1,6 @@
 ---
 title: "Data Visualization Lab: IPS Teams"
-output: rmdformats::html_docco
+output: rmdformats::downcute
 ---
 
 ```{r setup, include=FALSE}
@@ -18,13 +18,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 The `IPS_sampledata` data set contains a fraction of the indoor positioning system data for 15 randomly sampled locations.This data set is loaded into memory using the chunk of R code below, complete the following exercises. 
 
-The exercises below aim to help you polish your data visualization skills in R, while helping you gain a better understanding of the IPS data.
+The exercises below aim to help you polish your data visualization skills in R while simulatanelously helping you gain a better understanding of the IPS data.
 
-First, let's load up the dataset
+First, let's load up the data set.
 
 ```{r eval=T, echo=T}
 # loads data set IPS_sampledata
 load("../Lab01/IPS_portion.RData")
+mac_locs <- readr::read_table("accessPointLocations.txt")
 ```
 
 ### Variable dictionary
@@ -45,29 +46,71 @@ load("../Lab01/IPS_portion.RData")
 
 - `type`: type of device (access point = 3, device in adhoc mode = 1)
 
-### Let's clean up the data a bit
+### Preparing the data
 
-1. First apply the `summary` function to the `IPS_data` to get a sense of what is available in that data frame. 
+For this part of the lab you may use some of the code from the previous two labs to save some time.
 
-2. Identify variables that need any `class` conversion. Attempting to avoid code-replication as much as possible, convert these variables into the correct class type.
+1. Transform the variables in the data set into their correct types.
 
-3. Because we only want data relative to access points, remove observations that correspond to any other type of device.
-
-4. Assess if there are any variables that provide redundant or no information. If so, remove them from the data frame.
-
-5. Note that the `time` variable is in milliseconds.  Transform it into seconds and then convert its class into a time format using the function `as.POSIXct`.
+```{r transform_vars}
+# your code here
+```
 
 
-### Examining the data more closely
+2. From `IPS_sampledata`, keep only records for the six access points included in the `mac_locs` table, save these to `IPS_sampledata`.
 
-1. Create the function `tally_mac` whose only input is the MAC address of an access point, and returns the number of observations found in the data set for it.
+```{r filter_by_macs}
+# your code here
 
-2. Use the function `unique` to identify the unique levels for `mac` found in the data set. 
 
-3. Using an approach learned in class together with `tally_mac`, tally the  number of observations for all access points in the data. While the researchers did their best to clean their data, some noise was introduced by access points on other floors.  Based on the number of counts, identify and remove likely suspects for access points read by mistake.
+```
 
-4.  The orientation of the hand-held device considered was supposed to be exactly set to the 8 angles from 0-315 in increments of 45 degrees (360 is equivalent to 0). However, in practice the measured orientations were close to the 8 expected but had some error, so we'll need to group them.  Develop and apply a function to recode the orientation values as one of 0, 45, 90, 135, 180, 225, 270, 315. Call the recoded orientation variable `rec_orient`.
+3. Create a grouped version of the `orientation` variable, with groups (bins) determined by the proximity to angles 0, 45, 90, 135, 180, 225, 270, 315.
 
-5. Create the function `signal_summary` that takes as inputs a location (`posX`, `posY`, `posZ`), an orientation (`rec_orient`) and an access point id (`mac`).  The function must identify and subset the rows in `IPS_sampledata` corresponding to this unique combination, then it must calculate and return the mean and standard deviation for the corresponding signal strengths. 
+```{r bin_orientation}
+# your code here
 
-6.  Create a list where each entry corresponds to a named list including unique combination of a location, an orientation, and an access point.  Use this list in combination with `lapply` and `signal_summary` to generate a summary of signals for each unique combination. `Hint`: you may want to create a new variable with a unique identifier that combines location, `rec_orient` and `mac` to make your life simpler.  One way to go about this is using the `paste` function (see `?paste` for help on its use) with these variables in a row-by-row fashion.
+
+```
+
+
+4. Combine the information in `IPS_sampledata` and `mac_locs` using one of the `join_` functions we learned in class.
+
+```{r mac_joins}
+# your code here
+
+
+```
+
+
+### Getting useful visualizations
+
+Throughout this section you'll have some freedom to create some useful visualizations for your data.  [Here is a link](https://github.com/rstudio/cheatsheets/blob/main/data-visualization-2.1.pdf) to a `ggplot2` cheat-sheet, and [here is another link](https://r-graph-gallery.com/index.html) to a nice R graph gallery for inspiration.
+
+1. Generate a scatter plot showing the locations (`posX` and `posY` in `IPS_Sampledata`) of the handheld device, as well as those from the access points (variables `x` and `y` from `mac_locs`).   Use the `aesthetic` of your choosing to distinguish the handheld device locations from those corresponding to the access points.
+
+```{r loc_scatter}
+# your code here
+
+
+```
+
+
+2. Use the resulting data set from exercise 4 from the *"Preparing the Data"* section, `group` and `summarize` it in the appropriate way to obtain the median, mean, standard deviation and any other summary statistic you consider useful to assess the signal strength for each combination of: 1) location, 2) orientation (the binned version), and 3) access point.
+
+```{r summary_by_combo}
+# your code here
+
+
+```
+
+
+3. Using the data generated from the exercise above, produce one or more visualizations (at most 3) to understand the relationship between 1) orientation angle, 2) location (relative to the access point), and 3) signal strength, using `ggplot2` tools discussed in class. Briefly comment on the relationships you observe in your visualization(s) between orientation angle, distance between locations and access points, and signal strength. 
+
+```{r cool_dat_vis}
+# your code here
+
+
+```
+
+
