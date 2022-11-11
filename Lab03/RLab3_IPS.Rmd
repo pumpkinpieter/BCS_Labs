@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 **Here's the catch: For any given problem, the person writing the code should not be the person commenting that code, and every person must both code AND comment at least one problem in this lab (you decide how to split the work). This will involve lots of pushing and pulling through Git, and you may have to resolve conflicts if you're not careful! Refer to last Thursday's class notes for details on conflict resolution.**
 
-**Use only tools covered on Tuesday's lecture**.
+**ALSO, all plots generated should have labeled axes, titles, and legends when appropriate. Don't forget units of measurement! Make sure these plots could be interpreted by your client.**
 
 
 # Playing with the indoor positioning system data
@@ -113,6 +113,7 @@ Throughout this section you'll have some freedom to create useful visualizations
 
 
 ```
+
 
 4. Replicate the plot attached in the link.
 
