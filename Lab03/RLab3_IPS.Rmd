@@ -86,7 +86,7 @@ For this part of the lab you may use some of the code from the previous two labs
 
 ## Getting useful visualizations
 
-Throughout this section you'll have some freedom to create some useful visualizations for your data.  [**Here is a link**](https://github.com/rstudio/cheatsheets/blob/main/data-visualization-2.1.pdf) to a `ggplot2` cheat-sheet, and [**here is another link**](https://r-graph-gallery.com/index.html) to a nice R graph gallery for inspiration.
+Throughout this section you'll have some freedom to create useful visualizations for your project.  [**Here is a link**](https://github.com/rstudio/cheatsheets/blob/main/data-visualization-2.1.pdf) to a `ggplot2` cheat-sheet, and [**here is another link**](https://r-graph-gallery.com/index.html) to a nice R graph gallery for inspiration.
 
 1. Generate a scatter plot showing the locations (`posX` and `posY` in `IPS_Sampledata`) of the handheld device, as well as those from the access points (variables `x` and `y` from `mac_locs`).   Use the `aesthetic` of your choosing to distinguish the handheld device locations from those corresponding to the access points.
 
@@ -97,7 +97,7 @@ Throughout this section you'll have some freedom to create some useful visualiza
 ```
 
 
-2. Use the resulting data set from exercise 4 from the *"Preparing the Data"* section, `group` and `summarize` it in the appropriate way to obtain the median, mean, standard deviation and any other summary statistic you consider useful to assess the signal strength for each combination of: 1) location, 2) orientation (the binned version), and 3) access point.
+2. Use the resulting data set from exercise 4 from the *"Preparing the Data"* section, `group` and `summarize` it in the appropriate way to obtain the median, mean, standard deviation and any other summary statistic you consider useful to assess the signal strength for each combination of:  location, orientation (the binned version), and access point.
 
 ```{r summary_by_combo}
 # your code here
@@ -106,12 +106,20 @@ Throughout this section you'll have some freedom to create some useful visualiza
 ```
 
 
-3. Using the data generated from the exercise above, produce one or more visualizations (at most 3) to understand the relationship between 1) orientation angle, 2) location (relative to the access point), and 3) signal strength, using `ggplot2` tools discussed in class. Briefly comment on the relationships you observe in your visualization(s) between orientation angle, distance between locations and access points, and signal strength. 
+3. Using the data generated from the exercise above, produce one or more visualizations (at most 3) to explore the relationship between  orientation angle, location (relative to the access point), and signal strength, using `ggplot2` tools discussed in class. Briefly comment on the relationships you observe in your visualization(s) between orientation angle, distance between locations and access points, and signal strength. From your visualization(s), what cardinal direction can you relate the 0 degree orientation with?
 
 ```{r cool_dat_vis}
 # your code here
 
 
 ```
+
+4. Replicate the plot attached in the link.
+
+```{r rep_figure}
+xfun::embed_file("SignalByLocation.pdf")
+```
+
+
 
 
