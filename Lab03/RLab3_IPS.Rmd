@@ -104,16 +104,9 @@ IPS_data = IPS_data %>% mutate(rec_orient = round(orientation)) %>%
 # your code here
 
 mac_locs = mac_locs %>% rename(mac = "Macs")
-
-```
-
-```{r}
-
 IPS_data = inner_join(IPS_data, mac_locs, by = "mac")
 
-
 ```
-
 
 ## Getting useful visualizations
 
