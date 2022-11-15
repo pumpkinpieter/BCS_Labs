@@ -6,6 +6,11 @@ output: rmdformats::downcute
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+
 ```
 
 **Complete the following lab as a group. This document should exist in your GitHub repo while you're working on it. Your code should be heavily commented so someone reading your code can follow along easily. See the first code snippet below for an example of commented code.**
@@ -24,9 +29,11 @@ The exercises below aim to help you polish your data visualization skills in R w
 First, let's load up the data set.
 
 ```{r eval=TRUE, echo=TRUE, message=FALSE}
+
 # loads data set IPS_sampledata
 load("IPS_portion.RData")
 mac_locs <- readr::read_table("accessPointLocations.txt")
+
 ```
 
 ## Variable dictionary
@@ -55,14 +62,18 @@ For this part of the lab you may use some of the code from the previous two labs
 
 ```{r transform_vars}
 # your code here
+
+IPS_sampledata = IPS_sampledata %>% mutate(across(c("time","posX","posY","posZ","orientation","signal"), as.numeric))
+
 ```
 
 
 2. From `IPS_sampledata`, keep only records for the six access points included in the `mac_locs` table, save these to `IPS_sampledata`.
 
 ```{r filter_by_macs}
-# your code here
+ #your code here
 
+IPS_data = IPS_sampledata %>% filter(mac %in% mac_locs$Macs)
 
 ```
 
@@ -70,6 +81,18 @@ For this part of the lab you may use some of the code from the previous two labs
 
 ```{r bin_orientation}
 # your code here
+
+IPS_data = IPS_data %>% mutate(rec_orient = round(orientation)) %>%
+  mutate(rec_orient = case_when(
+    orientation <= 2 ~  0,
+    abs(45-rec_orient) <= 2 ~ 90,
+    abs(90-rec_orient) <= 2 ~ 90,
+    abs(135-rec_orient) <= 2 ~ 135,
+    abs(180-rec_orient) <= 2 ~ 180,
+    abs(225-rec_orient) <= 2 ~ 225,
+    abs(270-rec_orient) <= 2 ~ 270,
+    abs(315-rec_orient) <= 2 ~ 315,
+    abs(360-rec_orient) <= 2 ~ 0))
 
 
 ```
@@ -80,6 +103,14 @@ For this part of the lab you may use some of the code from the previous two labs
 ```{r mac_joins}
 # your code here
 
+mac_locs = mac_locs %>% rename(mac = "Macs")
+
+```
+
+```{r}
+
+IPS_data = inner_join(IPS_data, mac_locs, by = "mac")
+
 
 ```
 
@@ -88,10 +119,17 @@ For this part of the lab you may use some of the code from the previous two labs
 
 Throughout this section you'll have some freedom to create useful visualizations for your project.  [**Here is a link**](https://github.com/rstudio/cheatsheets/blob/main/data-visualization-2.1.pdf) to a `ggplot2` cheat-sheet, and [**here is another link**](https://r-graph-gallery.com/index.html) to a nice R graph gallery for inspiration.
 
-1. Generate a scatter plot showing the locations (`posX` and `posY` in `IPS_Sampledata`) of the handheld device, as well as those from the access points (variables `x` and `y` from `mac_locs`).   Use the `aesthetic` of your choosing to distinguish the handheld device locations from those corresponding to the access points.
+1. Generate a scatter plot showing the locations (`posX` and `posY` in `IPS_Sampledata`) of the handheld device, as well as those from the access points (variables `x` and `y` from `mac_locs`). Use the `aesthetic` of your choosing to distinguish the handheld device locations from those corresponding to the access points.
 
 ```{r loc_scatter}
 # your code here
+
+ggplot(data = IPS_data) +
+  geom_point(aes(x = posX, y = posY), color = "red", size = 2, shape = "circle", show.legend = TRUE) +
+  geom_point(aes(x,y), color = "black", size = 3, shape = "square", show.legend = TRUE) +
+  theme_bw()
+  
+  
 
 
 ```
@@ -101,6 +139,11 @@ Throughout this section you'll have some freedom to create useful visualizations
 
 ```{r summary_by_combo}
 # your code here
+
+IPS_summary = IPS_data %>% group_by(posX, posY, rec_orient, mac, x, y) %>%
+  summarise(signal_avg = mean(signal),
+            signal_med = median(signal),
+            signal_sd = sd(signal))
 
 
 ```
@@ -112,13 +155,31 @@ Throughout this section you'll have some freedom to create useful visualizations
 # your code here
 
 
+
+
 ```
 
 
 4. Replicate the plot attached in the link.
 
-```{r rep_figure}
+```{r rep_figure, fig.height=3.5, fig.width=6}
 xfun::embed_file("SignalByLocation.pdf")
+
+IPS_new = IPS_data %>% group_by(posX, posY, rec_orient, mac, x, y)
+
+IPS_new = IPS_new %>% mutate(location = paste(posX, posY, sep = ","))
+
+ggplot(IPS_new, aes(x = location, y = signal)) + 
+  geom_point(color = "cornflowerblue") +
+  geom_boxplot() +
+  xlab("location coordinates") + ylab("signal") +
+  ggtitle(label = "Signal strength by location", 
+          subtitle = "(by access point/orientation combination)") +
+  theme(axis.text.x=element_text(angle = 90, hjust = 1)) +
+  theme_bw() +
+  facet_grid(rows = vars(mac), cols = vars(rec_orient), scales = "free", space = "free")
+  
+  
 ```
 
 
