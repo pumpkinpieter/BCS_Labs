@@ -148,9 +148,29 @@ IPS_summary = IPS_data %>% group_by(posX, posY, rec_orient, mac, x, y) %>%
 # your code here
 
 
+ggplot(IPS_summary) + geom_line(aes(posX, posY, group = mac, color = signal_avg), 
+    alpha = 0.5) + facet_wrap(~rec_orient)+scale_color_gradient()
+```
+#single strength does not varies significantly with change in rec_orient
 
+```{r}
+# your code here
+
+ggplot(IPS_summary) + geom_line(aes(posX, posY, group = rec_orient, color = signal_avg), 
+    alpha = 0.5) + facet_wrap(~mac)+scale_color_gradient()
 
 ```
+
+# Mac access point '00:0f:a3:39:e1:c0' has a good positioning as it records fair signal strength for most of the coordinates. Whereas the signal strength measures by other access points varies significantly with the posX and posY.
+
+```{r}
+ggplot(IPS_summary) + geom_line(aes(posX, posY, group = rec_orient, color =  sqrt((posX-x)^2+(posY-y)^2)), 
+    alpha = 0.5) + facet_wrap(~mac)
+
+```
+# Mac access point '00:0f:a3:39:e1:c0' is closest to all the positions of the handheld device.
+
+
 
 
 4. Replicate the plot attached in the link.
