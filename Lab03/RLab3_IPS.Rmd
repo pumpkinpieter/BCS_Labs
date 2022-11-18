@@ -63,6 +63,7 @@ For this part of the lab you may use some of the code from the previous two labs
 ```{r transform_vars}
 # your code here
 
+# convert "posX","posY","posZ","signal","orientation","time" to numeric
 IPS_sampledata = IPS_sampledata %>% mutate(across(c("time","posX","posY","posZ","orientation","signal"), as.numeric))
 
 ```
@@ -73,6 +74,7 @@ IPS_sampledata = IPS_sampledata %>% mutate(across(c("time","posX","posY","posZ",
 ```{r filter_by_macs}
  #your code here
 
+# compare the mac data in IPS_sampledate and in mac_locs, get the same data and put them into IPS_data
 IPS_data = IPS_sampledata %>% filter(mac %in% mac_locs$Macs)
 
 ```
@@ -82,6 +84,7 @@ IPS_data = IPS_sampledata %>% filter(mac %in% mac_locs$Macs)
 ```{r bin_orientation}
 # your code here
 
+# add a new column named rec_orient, get the absolute and rounding orientation data and put into the rec_orient column
 IPS_data = IPS_data %>% mutate(rec_orient = round(orientation)) %>%
   mutate(rec_orient = case_when(
     orientation <= 2 ~  0,
@@ -103,7 +106,10 @@ IPS_data = IPS_data %>% mutate(rec_orient = round(orientation)) %>%
 ```{r mac_joins}
 # your code here
 
+# rename the Macs column in mac_locs into mac which IPS_data has the same name column
 mac_locs = mac_locs %>% rename(mac = "Macs")
+
+# use inner join function to compare and combine the x,y by mac column which has the same mac data together
 IPS_data = inner_join(IPS_data, mac_locs, by = "mac")
 
 ```
@@ -117,9 +123,13 @@ Throughout this section you'll have some freedom to create useful visualizations
 ```{r loc_scatter}
 # your code here
 
+# the data from
 ggplot(data = IPS_data) +
+  # the scatter plot and make posX and posY from IPS_data as the value of x-axis and y-axis in the scatter plot, adding the color, size and shape, show them all finally
   geom_point(aes(x = posX, y = posY), color = "red", size = 2, shape = "circle", show.legend = TRUE) +
+  # the scatter plot and make x and y in IPS_data as the value of x-axis and y-axis in the scatter plot, adding the color, size and shape, show them all finally
   geom_point(aes(x,y), color = "black", size = 3, shape = "square", show.legend = TRUE) +
+  # choose the theme
   theme_bw()
   
   
@@ -133,7 +143,9 @@ ggplot(data = IPS_data) +
 ```{r summary_by_combo}
 # your code here
 
+# grouping according to posX, posY, rec_orient, mac, x and y in IPS_data
 IPS_summary = IPS_data %>% group_by(posX, posY, rec_orient, mac, x, y) %>%
+  # summary the mean value, median value and the standard deviation value from  signal_summary
   summarise(signal_avg = mean(signal),
             signal_med = median(signal),
             signal_sd = sd(signal))
@@ -147,8 +159,9 @@ IPS_summary = IPS_data %>% group_by(posX, posY, rec_orient, mac, x, y) %>%
 ```{r cool_dat_vis}
 # your code here
 
-
+# using data from IPS_summary make the folding line chart, make posX and posY from IPS_summary to be the x-axis and y-axis in the folding line chart, tell ggplot to group by the value of mac and color by signal_avg
 ggplot(IPS_summary) + geom_line(aes(posX, posY, group = mac, color = signal_avg), 
+    # setting transparency, place them on separate slices by different rec_orient, and show the color scale
     alpha = 0.5) + facet_wrap(~rec_orient)+scale_color_gradient()
 ```
 #single strength does not varies significantly with change in rec_orient
