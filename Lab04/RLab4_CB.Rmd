@@ -25,17 +25,105 @@ Apart from the physics questions, the dataset derived by the Michelson–Morley 
 
 1) Using R to identify the outliers first within each setup (defined by the `Expt` number) and then within the data collection as a whole. The hope in the original experiment was that each setup would show a significant difference in central tendency. We did not cover confidence levels and null hypotheses, so simply create visualization(s) that aids you in gaining insight into how much apparent difference exists between the several setups.
 
+```{r}
+
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(stringdist)
+
+humans_names <- read_csv("humans-names.csv")
+morley = read.table("morley.dat", header = TRUE)
+
+```
+```{r}
+
+morley = morley %>% group_by(Expt)
+
+ggplot(morley, aes(x=Expt, y = Speed, group = Expt), names) +
+  geom_boxplot(varwidth = TRUE, outlier.colour = "red")
+
+ggplot(morley, aes(x=Expt, y = Speed), names) +
+  geom_boxplot(outlier.colour = "red", outlier.size = 2) #+
+  #geom_jitter()
+
+```
+
+
 2) If you discard the outliers within each setup, are the differences between setups increased or decreased? Answer with either a visualization or by looking at statistics on the reduced groups.
+
+```{r}
+
+
+
+```
+
 
 # Mispelled Names
 Our data set `humans-names.csv` contains 25,000 height and weight measurements. Each row has a person’s first name pulled from the US Social Security Agency list of common first names over the last century.
 
 Unfortunately, our hypothetical data collectors for this dataset are simply terrible typists, and they make typos when entering names with alarming frequency. There are some number of intended names in this dataset, but quite a few simple miscodings of those names as well. Your goal is to clean up these mispelled names.
 
-1) Identify every genuine name and correct all the misspelled ones to the correct canonical spelling. Use all the data wrangling tools you'd like (e.g. `dplyr` functions), but make sure you're checking each reassignment to make sure the names get classified correctly. You'll fully automate this process later. It is probably reasonable to assume that rare spellings are typos, at least if they are also relatively similar to common spellings.  
+1) Identify every genuine name and correct all the misspelled ones to the correct canonical spelling. Use all the data wrangling tools you'd like (e.g. `dplyr` functions), but make sure you're checking each reassignment to make sure the names get classified correctly. You'll fully automate this process later. It is probably reasonable to assume that rare spellings are typos, at least if they are also relatively similar to common spellings.
+
 Hint: There are a number of ways to measure the similarity of strings and that provide a clue as to likely typos. One general class of approach is in terms of edit distance between strings, which describes how many edititing operations need to be done to tranform one string into another. The R package `stringdist` provides Damerau–Levenshtein, Hamming, Levenshtein, and optimal string alignment as measures of edit distance. Keep in mind that sometimes multiple legitimate names are actually close to each other in terms of similarity measures (Dan VS Don, Jacob VS Jakob, etc). If you want to use `stringdist` for this problem, start by looking at the functions `stringdist()` and `stringdistmatrix()`.
+
+```{r}
+
+names_count = humans_names %>% group_by(Name) %>% tally() %>% arrange(desc(n))
+
+correct_names = names_count %>% filter(n>291) %>% ungroup() %>% select(-n)
+typos = names_count %>% filter(n<=291) %>% ungroup() %>% select(-n)
+
+#TESTING
+#for(name in correct_names$Name) {
+#  for(typo in typos$Name) {
+#    if(stringdist(name, typo, method = "dl") < 3) {
+#      print(paste(name, typo, sep = " "))
+#    }
+#  }
+#}
+
+typos_edited = typos %>% mutate(New_Name = case_when(
+  stringdist("Marie", Name, method = "dl") < 3 ~ "Marie",
+  stringdist("Joseph", Name, method = "dl") < 3 ~ "Joseph",
+  stringdist("Robert", Name, method = "dl") < 3 ~ "Robert",
+  stringdist("Linda", Name, method = "dl") < 3 ~ "Linda",
+  stringdist("James", Name, method = "dl") < 3 ~ "James",
+  stringdist("Susan", Name, method = "dl") < 3 ~ "Susan",
+  stringdist("John", Name, method = "dl") < 3 ~ "John",
+  stringdist("Richard", Name, method = "dl") < 3 ~ "Richard",
+  stringdist("David", Name, method = "dl") < 3 ~ "David",
+  stringdist("Patricia", Name, method = "dl") < 3 ~ "Patricia",
+  stringdist("Michael", Name, method = "dl") < 3 ~ "Michael",
+  stringdist("William", Name, method = "dl") < 3 ~ "William",
+  stringdist("Mary", Name, method = "dl") < 3 ~ "Mary",
+  stringdist("Jennifer", Name, method = "dl") < 3 ~ "Jennifer",
+  stringdist("Jessica", Name, method = "dl") < 3 ~ "Jessica",
+  stringdist("Barbara", Name, method = "dl") < 3 ~ "Barbara",
+  stringdist("Elizabeth", Name, method = "dl") < 3 ~ "Elizabeth"
+))
+
+```
 
 2) For each of the genuine names identified in (1), produce a histogram showing the distribution of Damerau–Levenshtein distances from the genuine name to the miscassified data. Make sure distances from genuine names to other genuine names are not included in these distributions.  
 Arrange all of the histograms into one figure write a short interpretation of it intended for a non-statistician client. 
 
+```{r}
+
+
+
+```
+
 3) Write code that reclassifies names similar to problem (1), but fully automated. You should end up with a function that takes the original data set and returns a cleaned version. Compare this cleaned data frame to the one from problem (1) and quantify the accuracy (i.e. what proportion of rows match?). Make sure your automated process achieves 90%, but shoot for higher if possible! 
+
+```{r}
+
+change_name = function(name, typo) {
+  if(stringdist(name, typo, method - "dl") < 3) {
+    typo = name
+  }
+  return(typo)
+}
+
+```
