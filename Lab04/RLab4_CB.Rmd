@@ -48,15 +48,33 @@ ggplot(morley, aes(x=Expt, y = Speed), names) +
   #geom_jitter()
 
 ```
+```{r}
+ggplot(morley) + geom_boxplot(aes(Expt,Speed, group = Expt, color = Speed), 
+    alpha = 0.5) + facet_wrap(~Expt)+scale_color_gradient()
+ggplot(morley) + geom_point(aes(Expt,Speed, group = Expt, color = Speed), 
+    alpha = 0.5) + facet_wrap(~Expt)+scale_color_gradient()
+
+qplot(Run, Speed, colour = factor(Expt), shape = factor(Expt), data = morley)
+
+#Boxplot
+boxplot(Expt~Speed,data = morley)
+```
 
 
 2) If you discard the outliers within each setup, are the differences between setups increased or decreased? Answer with either a visualization or by looking at statistics on the reduced groups.
 
 ```{r}
 
+oneway.test(Speed~Expt, data = morley, var.equal = TRUE)
 
+Data <- morley%>%
+  group_by(Expt) %>%
+  filter(Speed <= quantile(Speed, 0.99), Speed >= quantile(Speed, 0.01))
 
+oneway.test(Speed~Expt, data = Data, var.equal = TRUE)
 ```
+If we discard the outliers within each setup, are the differences between setups increased.
+
 
 
 # Mispelled Names
@@ -111,9 +129,38 @@ Arrange all of the histograms into one figure write a short interpretation of it
 
 ```{r}
 
+library(grid)
+library(gridBase)
 
+typos_edited = as.data.frame(typos_edited)
+typos_edited$change = paste0(typos_edited$New_Name,"-", typos_edited$Name)
 
+typos_edited$distance =  stringdist(typos_edited$New_Name, typos_edited$Name, method = "dl")
+
+par(5,4)
+name_set = unique(typos_edited$New_Name)
+
+for(i in 1: 17){
+typos_hist = typos_edited %>%dplyr::filter(.,typos_edited$New_Name==name_set [i])
+data_bar = typos_hist$distance
+names(data_bar) <- typos_hist$change
+hist(data_bar,col=rainbow(20))
+}
 ```
+
+```{r barplot}
+par(5,4)
+for(i in 1: 17){
+typos_hist = typos_edited %>%dplyr::filter(.,typos_edited$New_Name==name_set [i])
+data_bar = typos_hist$distance
+names(data_bar) <- typos_hist$change
+barplot(data_bar, col=rainbow(20), names.arg=names(data_bar))
+
+}
+```
+Most of the typos have one letter mispelled/missing/misplaced.
+
+
 
 3) Write code that reclassifies names similar to problem (1), but fully automated. You should end up with a function that takes the original data set and returns a cleaned version. Compare this cleaned data frame to the one from problem (1) and quantify the accuracy (i.e. what proportion of rows match?). Make sure your automated process achieves 90%, but shoot for higher if possible! 
 
