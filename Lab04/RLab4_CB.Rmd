@@ -29,6 +29,7 @@ Apart from the physics questions, the dataset derived by the Michelson–Morley 
 
 library(readr)
 library(dplyr)
+library(tidyr)
 library(ggplot2)
 library(stringdist)
 
@@ -43,12 +44,14 @@ morley = morley %>% group_by(Expt)
 ggplot(morley, aes(x=Expt, y = Speed, group = Expt), names) +
   geom_boxplot(varwidth = TRUE, outlier.colour = "red")
 
-ggplot(morley, aes(x=Expt, y = Speed), names) +
+ggplot(morley, aes(x=Expt, y = Speed)) +
   geom_boxplot(outlier.colour = "red", outlier.size = 2) #+
   #geom_jitter()
 
 ```
 ```{r}
+#Create two sets of box-plots and scatter-plots: One where the experiments are grouped
+#separately, and one where they are grouped together.
 ggplot(morley) + geom_boxplot(aes(Expt,Speed, group = Expt, color = Speed), 
     alpha = 0.5) + facet_wrap(~Expt)+scale_color_gradient()
 ggplot(morley) + geom_point(aes(Expt,Speed, group = Expt, color = Speed), 
@@ -64,9 +67,10 @@ boxplot(Expt~Speed,data = morley)
 2) If you discard the outliers within each setup, are the differences between setups increased or decreased? Answer with either a visualization or by looking at statistics on the reduced groups.
 
 ```{r}
-
+#Get a summary on the experiment with separated groups
 oneway.test(Speed~Expt, data = morley, var.equal = TRUE)
 
+#Group the data by experiment and filter out the outliers
 Data <- morley%>%
   group_by(Expt) %>%
   filter(Speed <= quantile(Speed, 0.99), Speed >= quantile(Speed, 0.01))
@@ -89,18 +93,11 @@ Hint: There are a number of ways to measure the similarity of strings and that p
 ```{r}
 
 names_count = humans_names %>% group_by(Name) %>% tally() %>% arrange(desc(n))
+print(names_count)
 
 correct_names = names_count %>% filter(n>291) %>% ungroup() %>% select(-n)
 typos = names_count %>% filter(n<=291) %>% ungroup() %>% select(-n)
 
-#TESTING
-#for(name in correct_names$Name) {
-#  for(typo in typos$Name) {
-#    if(stringdist(name, typo, method = "dl") < 3) {
-#      print(paste(name, typo, sep = " "))
-#    }
-#  }
-#}
 
 typos_edited = typos %>% mutate(New_Name = case_when(
   stringdist("Marie", Name, method = "dl") < 3 ~ "Marie",
@@ -135,7 +132,26 @@ library(gridBase)
 typos_edited = as.data.frame(typos_edited)
 typos_edited$change = paste0(typos_edited$New_Name,"-", typos_edited$Name)
 
+#Make a new column showing the distance between the typo and the closest correct name
 typos_edited$distance =  stringdist(typos_edited$New_Name, typos_edited$Name, method = "dl")
+
+typos_edited$distance_Marie = stringdist("Marie", typos_edited$Name, method = "dl")
+typos_edited$distance_Joseph = stringdist("Joseph", typos_edited$Name, method = "dl")
+typos_edited$distance_Robert = stringdist("Robert", typos_edited$Name, method = "dl")
+typos_edited$distance_Linda = stringdist("Linda", typos_edited$Name, method = "dl")
+typos_edited$distance_James = stringdist("James", typos_edited$Name, method = "dl")
+typos_edited$distance_Susan = stringdist("Susan", typos_edited$Name, method = "dl")
+typos_edited$distance_John = stringdist("John", typos_edited$Name, method = "dl")
+typos_edited$distance_Richard = stringdist("Richard", typos_edited$Name, method = "dl")
+typos_edited$distance_David = stringdist("David", typos_edited$Name, method = "dl")
+typos_edited$distance_Patricia = stringdist("Patricia", typos_edited$Name, method = "dl")
+typos_edited$distance_Michael = stringdist("Michael", typos_edited$Name, method = "dl")
+typos_edited$distance_William = stringdist("William", typos_edited$Name, method = "dl")
+typos_edited$distance_Mary = stringdist("Mary", typos_edited$Name, method = "dl")
+typos_edited$distance_Jennifer = stringdist("Jennifer", typos_edited$Name, method = "dl")
+typos_edited$distance_Jessica = stringdist("Jessica", typos_edited$Name, method = "dl")
+typos_edited$distance_Barbara = stringdist("Barbara", typos_edited$Name, method = "dl")
+typos_edited$distance_Elizabeth = stringdist("Elizabeth", typos_edited$Name, method = "dl")
 
 par(5,4)
 name_set = unique(typos_edited$New_Name)
@@ -150,27 +166,75 @@ hist(data_bar,col=rainbow(20))
 
 ```{r barplot}
 par(5,4)
+
+#Create a bar plot for every correct name that shows the distance between it and 
+#each of it's closest typos
+
 for(i in 1: 17){
 typos_hist = typos_edited %>%dplyr::filter(.,typos_edited$New_Name==name_set [i])
 data_bar = typos_hist$distance
 names(data_bar) <- typos_hist$change
 barplot(data_bar, col=rainbow(20), names.arg=names(data_bar))
-
 }
+
+
+
 ```
+
 Most of the typos have one letter mispelled/missing/misplaced.
 
+```{r}
+typos_long = typos_edited %>% 
+  select(-c("distance","change")) %>% 
+  filter(!is.na(New_Name)) %>%
+  pivot_longer(
+    cols = starts_with("distance"),
+    values_to = "Distance_From")
+```
 
+```{r}
+# I ran out of time to make this look pretty -Henry
+typos_long %>% group_by(New_Name) %>%
+  ggplot(aes(x=Distance_From), group = name, color = New_Name) +
+    geom_histogram(binwidth = 1) +
+    xlab("Distance From Correct Name") +
+    ylab("Number of Misspelled Names") +
+    ggtitle("Distance Between Typos and Correct Names") +
+    theme_bw() +
+    facet_wrap(New_Name~.)
+
+```
+All the names have a number of typos that are 1 change away from being correct,
+while very few have typos that are off by 2 or 3. 
 
 3) Write code that reclassifies names similar to problem (1), but fully automated. You should end up with a function that takes the original data set and returns a cleaned version. Compare this cleaned data frame to the one from problem (1) and quantify the accuracy (i.e. what proportion of rows match?). Make sure your automated process achieves 90%, but shoot for higher if possible! 
 
 ```{r}
 
+print(typos)
+
 change_name = function(name, typo) {
-  if(stringdist(name, typo, method - "dl") < 3) {
+  if(stringdist(name, typo, method = "dl") < 3) {
     typo = name
   }
   return(typo)
 }
+
+for(i in 1:17) {
+  for(j in 1:232) {
+    typos[j,1] = change_name(as.character(correct_names[i,1]), as.character(typos[j,1]))
+  }
+}
+
+print(typos)
+
+#for(name in correct_names$Name) {
+#  for(typo in typos$Name) {
+#    if(stringdist(name, typo, method = "dl") < 3) {
+#      print(paste(name, typo, sep = " "))
+#    }
+#  }
+#}
+
 
 ```
